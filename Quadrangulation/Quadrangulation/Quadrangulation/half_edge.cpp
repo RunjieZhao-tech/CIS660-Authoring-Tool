@@ -16,8 +16,8 @@ std::vector<HalfEdge*> Vertex::getHalfEdges() {
     return res;
 }//return all half edges point to it
 
-HalfEdge::HalfEdge(HalfEdge* nHEdge, HalfEdge* sHEdge, Quad* face, Vertex* vert)
-    :nHEdge(nHEdge), sHEdge(sHEdge), quad(face), vert(vert)
+HalfEdge::HalfEdge(HalfEdge* nHEdge, HalfEdge* sHEdge, Face* face, Vertex* vert)
+    :nHEdge(nHEdge), sHEdge(sHEdge), face(face), vert(vert)
 {
     if (sHEdge != nullptr) {
         sHEdge->sHEdge = this;
@@ -29,7 +29,6 @@ HalfEdge::HalfEdge(HalfEdge* nHEdge, HalfEdge* sHEdge, Quad* face, Vertex* vert)
         vert->hEdge = this;
     }
 };
-<<<<<<< HEAD
 
 //copy the data from one edge to another
 HalfEdge::HalfEdge(HalfEdge *edge) {
@@ -39,13 +38,11 @@ HalfEdge::HalfEdge(HalfEdge *edge) {
     this->vert = edge->vert;
 }
 
-=======
->>>>>>> ec135569cd9d90ac163b9d2fbd506591dcba0a53
 HalfEdge::HalfEdge()
     :HalfEdge(nullptr, nullptr, nullptr, nullptr)
 {}
-void HalfEdge::setQuad(Quad* iface) {
-    this->quad = iface;
+void HalfEdge::setFace(Face* iface) {
+    this->face = iface;
     if (iface != nullptr) {
         iface->hEdge = this;
     }
@@ -73,33 +70,29 @@ HalfEdge* HalfEdge::getNextHalfEdge() {
 HalfEdge* HalfEdge::getSymHalfEdge() {
     return this->sHEdge;
 }
-Quad* HalfEdge::getQuad() {
-    return quad;
+Face* HalfEdge::getFace() {
+    return face;
 }
 
-//get symmetric edge
-HalfEdge* HalfEdge::getSymEdge() {
-    return this->sHEdge;
-}
 
 std::pair<Vertex*, Vertex*> HalfEdge::getVerts() {
     return std::pair<Vertex*, Vertex*>(sHEdge->vert, vert);
 }
 
-Quad::Quad(HalfEdge* hEdge, glm::vec3 color)
+Face::Face(HalfEdge* hEdge, glm::vec3 color)
     :hEdge(hEdge), color(color)
 {
     if (hEdge != nullptr) {
-        hEdge->setQuad(this);
+        hEdge->setFace(this);
     }
 }
-Quad::Quad()
-    :Quad(nullptr, glm::vec3(rand() % 100 / 100.f, rand() % 100 / 100.f, rand() % 100 / 100.f))
+Face::Face()
+    :Face(nullptr, glm::vec3(rand() % 100 / 100.f, rand() % 100 / 100.f, rand() % 100 / 100.f))
 {}
-void Quad::setEdge(HalfEdge* e) {
+void Face::setEdge(HalfEdge* e) {
     this->hEdge = e;
 }
-void Quad::triangulate(std::vector<Vertex*>* outVerts, std::vector<unsigned int>* outIds) {
+void Face::triangulate(std::vector<Vertex*>* outVerts, std::vector<unsigned int>* outIds) {
     unsigned int start = outVerts->size();
     std::vector<HalfEdge*> edges = getHalfEdges();
     for (HalfEdge* edge : edges) {
@@ -112,7 +105,7 @@ void Quad::triangulate(std::vector<Vertex*>* outVerts, std::vector<unsigned int>
         outIds->push_back(start + i + 2);
     }
 }
-std::vector<Vertex*> Quad::getVertices() {
+std::vector<Vertex*> Face::getVertices() {
     std::vector<Vertex*> verts;
     std::vector<HalfEdge*> edges = getHalfEdges();
     for (HalfEdge* edge : edges) {
@@ -120,7 +113,7 @@ std::vector<Vertex*> Quad::getVertices() {
     }
     return verts;
 }
-glm::vec3 Quad::getCenter() {
+glm::vec3 Face::getCenter() {
     std::vector<Vertex*> verts = getVertices();
     unsigned long count = verts.size();
     glm::vec3 res(0, 0, 0);
@@ -130,7 +123,7 @@ glm::vec3 Quad::getCenter() {
     res = 1.f / count * res;
     return res;
 }
-std::vector<HalfEdge*> Quad::getHalfEdges() {
+std::vector<HalfEdge*> Face::getHalfEdges() {
     std::vector<HalfEdge*> res;
     HalfEdge* current = hEdge;
     do {
@@ -139,12 +132,12 @@ std::vector<HalfEdge*> Quad::getHalfEdges() {
     } while (current != hEdge);
     return res;
 }//return all half edges around it
-std::vector<Quad*> Quad::getAdjacentQuads(HalfEdge* halfEdge) {
-    std::vector<Quad*> result;
+std::vector<Face*> Face::getAdjacentFaces(HalfEdge* halfEdge) {
+    std::vector<Face*> result;
     HalfEdge* curr = halfEdge;
     do {
         if (curr->sHEdge != nullptr) {
-            result.push_back(curr->sHEdge->quad);
+            result.push_back(curr->sHEdge->face);
         }
         else {
             result.push_back(nullptr);
@@ -153,17 +146,17 @@ std::vector<Quad*> Quad::getAdjacentQuads(HalfEdge* halfEdge) {
     } while (curr != halfEdge);
     return result;
 }
-Quad* Quad::getQuadOppositeTo(HalfEdge* halfEdge) {
-    HalfEdge* inQuadEdge = halfEdge;
-    if (inQuadEdge->getQuad() != this) {
-        inQuadEdge = inQuadEdge->sHEdge;
-    }
-    HalfEdge* sym = inQuadEdge->nHEdge->nHEdge;
-    if (sym != nullptr) {
-        return sym->getQuad();
-    }
-    return nullptr;
-}
+//Face* Face::getQuadOppositeTo(HalfEdge* halfEdge) {
+//    HalfEdge* inQuadEdge = halfEdge;
+//    if (inQuadEdge->getFace() != this) {
+//        inQuadEdge = inQuadEdge->sHEdge;
+//    }
+//    HalfEdge* sym = inQuadEdge->nHEdge->nHEdge;
+//    if (sym != nullptr) {
+//        return sym->getFace();
+//    }
+//    return nullptr;
+//}
 
 Patch::Patch(std::vector<glm::vec3> vertices)
     :hasQuad(false)
@@ -321,7 +314,7 @@ void Patch::quadrangulate() {
     //if all candidates are quarangles, we create Quads for Patch
     std::unordered_map<std::pair<Vertex*, Vertex*>, HalfEdge*, HEdgeHash> SYMmap;
     for (std::vector<Vertex*>& candidate : candidates) {
-        uPtr<Quad> quad;
+        uPtr<Face> quad;
 
         uPtr<HalfEdge> s1 = mkU<HalfEdge>(nullptr, nullptr, quad.get(), candidate[0]);
         uPtr<HalfEdge> s2 = mkU<HalfEdge>(nullptr, nullptr, quad.get(), candidate[1]);
@@ -350,11 +343,11 @@ void Patch::quadrangulate() {
 //this method will return new generated quad after division
 void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
     //find all affected quads
-    std::vector<Quad*> quads;
+    std::vector<Face*> quads;
     HalfEdge* curr = edgeToDivide;
     bool isLoop = false;
     while (curr != nullptr) {
-        Quad* currQuad = edgeToDivide->getQuad();
+        Face* currQuad = edgeToDivide->getFace();
         if (currQuad != nullptr) {
             quads.push_back(currQuad);
         }
@@ -369,7 +362,7 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
     if (!isLoop) {
         curr = edgeToDivide->getSymHalfEdge();
         while (curr != nullptr) {
-            Quad* currQuad = edgeToDivide->getQuad();
+            Face* currQuad = edgeToDivide->getFace();
             if (currQuad != nullptr) {
                 quads.push_back(currQuad);
             }
