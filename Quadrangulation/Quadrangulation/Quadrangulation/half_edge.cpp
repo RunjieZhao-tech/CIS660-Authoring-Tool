@@ -32,6 +32,14 @@ HalfEdge::HalfEdge(HalfEdge* nHEdge, HalfEdge* sHEdge, Face* face, Vertex* vert)
     }
 };
 
+//copy the data from one edge to another
+HalfEdge::HalfEdge(HalfEdge *edge) {
+    this->face = edge->face;
+    this->nHEdge = edge->nHEdge;
+    this->sHEdge = edge->sHEdge;
+    this->vert = edge->vert;
+}
+
 HalfEdge::HalfEdge()
     :HalfEdge(nullptr, nullptr, nullptr, nullptr)
 {}
@@ -65,6 +73,12 @@ void HalfEdge::setNextEdge(HalfEdge* nEdge) {
 Face* HalfEdge::getFace() {
     return face;
 }
+
+//get symmetric edge
+HalfEdge* HalfEdge::getSymEdge() {
+    return this->sHEdge;
+}
+
 std::pair<Vertex*, Vertex*> HalfEdge::getVerts() {
     return std::pair<Vertex*, Vertex*>(sHEdge->vert, vert);
 }

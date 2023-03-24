@@ -1,2 +1,7 @@
 ﻿  Quadrangulation.cpp
+  half_edge.cpp
+D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\half_edge.cpp(97,42): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\half_edge.cpp(102,32): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\half_edge.cpp(128,39): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned long', possible loss of data
+  Generating Code...
   Quadrangulation.vcxproj -> D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\x64\Debug\Quadrangulation.exe

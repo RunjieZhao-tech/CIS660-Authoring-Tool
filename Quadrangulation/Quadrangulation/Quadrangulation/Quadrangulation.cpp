@@ -56,7 +56,7 @@ void Test(){
     vertex_arr.push_back(v2);
     vertex_arr.push_back(v3);
 
-    //create edges
+    //create edges and inverse edges
     std::vector<HalfEdge*> edge_arr;
     HalfEdge* he1 = new HalfEdge();
     he1->setVert(v1);
@@ -65,6 +65,16 @@ void Test(){
     HalfEdge* he3 = new HalfEdge();
     he3->setVert(v3);
 
+    HalfEdge* he1_inv = new HalfEdge();
+    he1_inv->setVert(v3);
+    HalfEdge* he2_inv = new HalfEdge();
+    he2_inv->setVert(v1);
+    HalfEdge* he3_inv = new HalfEdge();
+    he3_inv->setVert(v2);
+    he1->setSymEdge(he1_inv);
+    he2->setSymEdge(he2_inv);
+    he3->setSymEdge(he3_inv);
+
     he1->setNextEdge(he2);
     he2->setNextEdge(he3);
     he3->setNextEdge(he1);
@@ -72,5 +82,58 @@ void Test(){
     Face* face = new Face();
     face->setEdge(he1);
 
+    //Quadrangulation
+    //1. get the center
+    glm::vec3 center_pos = face->getCenter();
+    Vertex* center = new Vertex();
+    center->pos = center_pos;
+    
+    //2. get the edges points from center to center of each edge
+    
+    std::vector<HalfEdge*> hf_arr = face->getHalfEdges();
+    std::vector<HalfEdge*> center_edge;
+    std::vector<HalfEdge*> center_edge_inv;
+    std::vector<Vertex*> center_vertex;
+    for (int i = 0; i < hf_arr.size(); i++) {
+        HalfEdge* edge = new HalfEdge();
+        HalfEdge* edge_inv = new HalfEdge();
+        Vertex* v = new Vertex;
+        Vertex* last = hf_arr.at(i)->getVerts().first;
+        Vertex* next = hf_arr.at(i)->getVerts().second;
+        glm::vec3 mid = (last->pos + next->pos) / 2.f;
+        v->pos = mid;
+        center_vertex.push_back(v);
+        edge->setVert(v);
+        edge_inv->setVert(center);
+        edge->setSymEdge(edge_inv);
+        center_edge.push_back(edge);
+    }
+    
+    //test
+    for (int i = 0; i < center_edge.size(); i++) {
+        Vertex* first = center_edge.at(i)->getVerts().first;
+        Vertex* last = center_edge.at(i)->getVerts().second;
+        std::cout << "first" << first->pos.x << " " << first->pos.y << " " << first->pos.z << std::endl;
+        std::cout << "last" << last->pos.x << " " << last->pos.y << " " << last->pos.z << std::endl;
+    }
 
+    //create new faces
+    std::vector<Face*> face_arr;
+    for (int i = 0; i < center_edge.size(); i++) {
+        Face* break_face = new Face();
+        HalfEdge* current = center_edge.at(i);
+        HalfEdge* next = new HalfEdge(hf_arr.at(i));
+        HalfEdge* next_inv = new HalfEdge();
+        next_inv->setVert(current->getVerts().second);
+        HalfEdge* next_next = new HalfEdge(hf_arr.at((i + 1) % hf_arr.size()));
+        HalfEdge* next_next_inv = new HalfEdge();
+        next_next->setVert(center_edge.at((i + 1) % hf_arr.size())->getVerts().second);
+        next_next_inv->setVert(next->getVerts().second);
+        break_face->setEdge(current);
+        next->setFace(break_face);
+        next->setNextEdge(next_next);
+        current->setNextEdge(next);
+        next_next->setNextEdge(center_edge.at((i + 1) % hf_arr.size())->getSymEdge());
+        center_edge.at((i + 1) % hf_arr.size())->getSymEdge()->setNextEdge(current);
+    }
 }

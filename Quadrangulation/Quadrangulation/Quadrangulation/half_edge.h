@@ -38,12 +38,14 @@ private:
     Vertex* vert;//A pointer to the Vertex between this HalfEdge and its next HalfEdge
 public:
     HalfEdge(HalfEdge* nHEdge, HalfEdge* sHEdge, Face* face, Vertex* vert);
+    HalfEdge(HalfEdge* edge);
     HalfEdge();
     void setFace(Face* iface);
     void setVert(Vertex* ivert);
     void setSymEdge(HalfEdge* iEdge);
     void setNextEdge(HalfEdge* nEdge);
     Face* getFace();
+    HalfEdge* getSymEdge();
     //get two vertices of the edge, second is the vert the half edge point to
     std::pair<Vertex*, Vertex*> getVerts();
     friend class Face;
