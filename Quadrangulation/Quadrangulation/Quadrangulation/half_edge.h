@@ -23,6 +23,7 @@ public:
     Face();
     std::vector<HalfEdge*> getHalfEdges();//return all half edges around it
     std::vector<Vertex*> getVertices();
+    void setEdge(HalfEdge*); //set the one of edges that this Face points to
     void triangulate(std::vector<Vertex*>* verts, std::vector<unsigned int>* ids);
     glm::vec3 getCenter();
     friend class HalfEdge;
@@ -41,6 +42,7 @@ public:
     void setFace(Face* iface);
     void setVert(Vertex* ivert);
     void setSymEdge(HalfEdge* iEdge);
+    void setNextEdge(HalfEdge* nEdge);
     Face* getFace();
     //get two vertices of the edge, second is the vert the half edge point to
     std::pair<Vertex*, Vertex*> getVerts();

@@ -48,12 +48,20 @@ void HalfEdge::setVert(Vertex* ivert) {
         ivert->hEdge = this;
     }
 }
+
+//set symmetric edge
 void HalfEdge::setSymEdge(HalfEdge* iEdge) {
     this->sHEdge = iEdge;
     if (iEdge != nullptr) {
         iEdge->sHEdge = this;
     }
 }
+
+//set next edge
+void HalfEdge::setNextEdge(HalfEdge* nEdge) {
+    this->nHEdge = nEdge;
+}
+
 Face* HalfEdge::getFace() {
     return face;
 }
@@ -84,6 +92,8 @@ void Face::triangulate(std::vector<Vertex*>* outVerts, std::vector<unsigned int>
         outIds->push_back(start + i + 2);
     }
 }
+
+//Test if a point is in an triangle
 bool inTriangle(glm::vec3 testPt, glm::vec3 trigPt0, glm::vec3 trigPt1, glm::vec3 trigPt2, glm::vec3 norm) {
     float s1 = abs(glm::dot(glm::cross(testPt - trigPt0, testPt - trigPt1), norm));
     float s2 = abs(glm::dot(glm::cross(testPt - trigPt1, testPt - trigPt2), norm));
@@ -118,3 +128,8 @@ std::vector<HalfEdge*> Face::getHalfEdges() {
     } while (current != hEdge);
     return res;
 }//return all half edges around it
+
+//set the edge that face will point to 
+void Face::setEdge(HalfEdge* e) {
+    this->hEdge = e;
+}

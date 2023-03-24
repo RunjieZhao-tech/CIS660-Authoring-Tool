@@ -1,12 +1,14 @@
 //Quadrangulation Reducing Points
 
 #include <iostream>
+#include <half_edge.h>
+#include <glm/glm.hpp>
 void reducePoints(int input[],int times);
+void Test();
 
 int main()
 {
-    int input[3] = {5,4,11};
-    reducePoints(input,0);
+    Test();
 }
 
 //Each index in the input represents the number of edges in one side
@@ -36,4 +38,39 @@ void reducePoints(int input[], int times) {
         reducePoints(input,times+1);
     }
     return;
+}
+
+//create a triangle and decompose it into several pieces.
+void Test(){
+    //create three vertices
+    Vertex* v1 = new Vertex();
+    v1->pos = glm::vec3(0, 0, 0);
+    Vertex* v2 = new Vertex();
+    v2->pos = glm::vec3(1, 0, 0);
+    Vertex* v3 = new Vertex();
+    v3->pos = glm::vec3(0, 1, 0);
+    std::cout << v1->pos.x << " " << v1->pos.y << " " << v1->pos.z << std::endl;
+
+    std::vector<Vertex*> vertex_arr;
+    vertex_arr.push_back(v1);
+    vertex_arr.push_back(v2);
+    vertex_arr.push_back(v3);
+
+    //create edges
+    std::vector<HalfEdge*> edge_arr;
+    HalfEdge* he1 = new HalfEdge();
+    he1->setVert(v1);
+    HalfEdge* he2 = new HalfEdge();
+    he2->setVert(v2);
+    HalfEdge* he3 = new HalfEdge();
+    he3->setVert(v3);
+
+    he1->setNextEdge(he2);
+    he2->setNextEdge(he3);
+    he3->setNextEdge(he1);
+
+    Face* face = new Face();
+    face->setEdge(he1);
+
+
 }
