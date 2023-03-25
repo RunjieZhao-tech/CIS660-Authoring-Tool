@@ -1,14 +1,19 @@
 //Quadrangulation Reducing Points
 
 #include <iostream>
-#include <half_edge.h>
-#include <glm/glm.hpp>
+#include "half_edge.h"
+#include "glm/glm.hpp"
 void reducePoints(int input[],int times);
 void Test();
 
 int main()
 {
     Test();
+}
+
+//helper function
+void printout(glm::vec3 val) {
+    std::cout << val.x << " " << val.y << " " << val.z << std::endl;
 }
 
 //Each index in the input represents the number of edges in one side
@@ -132,8 +137,25 @@ void Test(){
         break_face->setEdge(current);
         next->setFace(break_face);
         next->setNextEdge(next_next);
+        next->setSymEdge(next_inv);
         current->setNextEdge(next);
-        next_next->setNextEdge(center_edge.at((i + 1) % hf_arr.size())->getSymEdge());
-        center_edge.at((i + 1) % hf_arr.size())->getSymEdge()->setNextEdge(current);
+        next_next->setNextEdge(center_edge.at((i + 1) % hf_arr.size())->getSymHalfEdge());
+        center_edge.at((i + 1) % hf_arr.size())->getSymHalfEdge()->setNextEdge(current);
+        face_arr.push_back(break_face);
+        /*std::cout << "current edges" << std::endl;
+        printout(next->getVerts().first->pos);
+        printout(next->getVerts().second->pos);*/
+    }
+    
+    std::cout << "size " << face_arr.size() << std::endl;
+    Face* temp = face_arr.at(1);
+    std::vector<HalfEdge*> half_arr = temp->getHalfEdges();
+    std::cout << "half edge size " << half_arr.size() << std::endl;
+    for (int i = 0; i < half_arr.size(); i++) {
+        Vertex* no1 = half_arr.at(i)->getVerts().first;
+        Vertex* no2 = half_arr.at(i)->getVerts().second;
+        std::cout << "edges" << std::endl;
+        std::cout << "no1 " << no1->pos.x << " " << no1->pos.y << " " << no1->pos.z << std::endl;
+        std::cout << "no2 " << no2->pos.x << " " << no2->pos.y << " " << no2->pos.z << std::endl;
     }
 }
