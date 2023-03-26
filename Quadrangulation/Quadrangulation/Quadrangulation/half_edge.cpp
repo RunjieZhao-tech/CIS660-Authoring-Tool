@@ -219,6 +219,10 @@ void Patch::quadrangulate() {
     //first we try to combine triangles into quadrangles as many as possible
     //but these quadrangles are not Quad yet
     std::vector<std::vector<Vertex*>> candidates;
+    std::vector<Vertex*> boundVerts;
+    for(int i=0;i<verts.size();i++){
+        boundVerts.push_back(verts[i].get());
+    }
     for (int i = 0;i < (verts.size()-2);i++) {
         if (i + 3 < verts.size()) {
             //we have a quadrangle
@@ -231,7 +235,7 @@ void Patch::quadrangulate() {
             //since we skip one triangle
             i++;
         }
-        else {
+        else if(i + 2 < verts.size()){
             //we have a triangle
             std::vector<Vertex*> candidate;
             candidate.push_back(verts[0].get());
@@ -243,26 +247,38 @@ void Patch::quadrangulate() {
     int lastCandidateID = candidates.size() - 1;
     if (lastCandidateID < 0)return;
     //if there remains a triangle, we find its central point
-    //convert it to quadrangle, 
+    //convert it to quadrangle,
     //subdivide quadrangle that shares the same edge with the triangle into 2 new quads
     //in our method, there will only be one quadrangle being affected
     //I update candidates here to make sure all candidates are quadrangles
     if (candidates[lastCandidateID].size() == 3) {
         //find centre of the triangle
-        std::vector<Vertex*>& trig = candidates[lastCandidateID];
+        std::vector<Vertex*> trig = candidates[lastCandidateID];
         glm::vec3 centre =
             trig[0]->pos +
             trig[1]->pos +
             trig[2]->pos;
         centre /= 3.f;
-        candidates.pop_back();
         uPtr<Vertex> v1 = mkU<Vertex>((trig[0]->pos + trig[1]->pos) / 2.f, nullptr);//this is the vertex on the shared edge
         uPtr<Vertex> v2 = mkU<Vertex>((trig[1]->pos + trig[2]->pos) / 2.f, nullptr);
-        uPtr<Vertex> v3 = mkU<Vertex>((trig[0]->pos + trig[2]->pos) / 2.f, nullptr);
+        uPtr<Vertex> v3 = mkU<Vertex>((trig[2]->pos + trig[0]->pos) / 2.f, nullptr);
+        //add new vertex to boundary vertices
+        for(int i=0;i<boundVerts.size();i++){
+            if(boundVerts[i] == trig[1]){
+                boundVerts.insert(boundVerts.begin()+i+1,v2.get());
+            }
+        }
+        for(int i=0;i<boundVerts.size();i++){
+            if(boundVerts[i] == trig[2]){
+                boundVerts.insert(boundVerts.begin()+i+1,v3.get());
+            }
+        }
+        //--------add new vertex to boundary vertices
+        candidates.pop_back();
         //split affected quadrangle
         if (lastCandidateID >= 1) {
-            std::vector<Vertex*>& splitQuad = candidates[lastCandidateID - 1];
-            candidates.pop_back();
+            std::vector<Vertex*> splitQuad = candidates[lastCandidateID - 1];
+
             uPtr<Vertex> v4 = mkU<Vertex>((splitQuad[1]->pos + splitQuad[2]->pos) / 2.f, nullptr);
             std::vector<Vertex*> newCandidate1;
             std::vector<Vertex*> newCandidate2;
@@ -277,10 +293,27 @@ void Patch::quadrangulate() {
             newCandidate2.push_back(splitQuad[3]);
             newCandidate2.push_back(v1.get());
 
+            candidates.pop_back();
             candidates.push_back(newCandidate1);
             candidates.push_back(newCandidate2);
 
+            //add new vertex to boundary vertices
+            for(int i=0;i<boundVerts.size();i++){
+                if(boundVerts[i] == splitQuad[1]){
+                    boundVerts.insert(boundVerts.begin()+i+1,v4.get());
+                }
+            }
+            //--------add new vertex to boundary vertices
             verts.push_back(std::move(v4));
+
+        }else{
+            //add new vertex to boundary vertices
+            for(int i=0;i<boundVerts.size();i++){
+                if(boundVerts[i] == trig[0]){
+                    boundVerts.insert(boundVerts.begin()+i+1,v1.get());
+                }
+            }
+            //--------add new vertex to boundary vertices
         }
         //split triangle
         uPtr<Vertex> c = mkU<Vertex>(centre, nullptr);
@@ -306,6 +339,7 @@ void Patch::quadrangulate() {
         candidates.push_back(q2);
         candidates.push_back(q3);
 
+        verts.push_back(std::move(c));
         verts.push_back(std::move(v1));
         verts.push_back(std::move(v2));
         verts.push_back(std::move(v3));
@@ -314,7 +348,7 @@ void Patch::quadrangulate() {
     //if all candidates are quarangles, we create Quads for Patch
     std::unordered_map<std::pair<Vertex*, Vertex*>, HalfEdge*, HEdgeHash> SYMmap;
     for (std::vector<Vertex*>& candidate : candidates) {
-        uPtr<Face> quad;
+        uPtr<Face> quad = mkU<Face>();
 
         uPtr<HalfEdge> s1 = mkU<HalfEdge>(nullptr, nullptr, quad.get(), candidate[0]);
         uPtr<HalfEdge> s2 = mkU<HalfEdge>(nullptr, nullptr, quad.get(), candidate[1]);
@@ -336,9 +370,26 @@ void Patch::quadrangulate() {
         hEdges.push_back(std::move(s2));
         hEdges.push_back(std::move(s3));
         hEdges.push_back(std::move(s4));
+        //std::cout << "halfedge * 4" <<std::endl;
     }
     //outer halfedge on the boundary
-    //I skip that
+    for(int i=0;i<boundVerts.size();i++){
+        uPtr<HalfEdge> b = mkU<HalfEdge>(nullptr, nullptr, nullptr, boundVerts[i]);
+        hEdges.push_back(std::move(b));
+    }
+    for(int i=0;i<boundVerts.size();i++){
+        int index1 = i;
+        int index2 = (i+1)%boundVerts.size();
+        int index3 = (i+2)%boundVerts.size();
+
+        //since it's sym half edge on the boundary the order should be inverse
+        HalfEdge* nextH = boundVerts[index1]->hEdge;
+        HalfEdge* h = boundVerts[index2]->hEdge;
+
+        h->setNextEdge(nextH);
+        bool success= processSYM(&SYMmap, h, boundVerts[index3], boundVerts[index2]);
+    }
+    hasQuad = true;
 }
 //this method will return new generated quad after division
 void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
