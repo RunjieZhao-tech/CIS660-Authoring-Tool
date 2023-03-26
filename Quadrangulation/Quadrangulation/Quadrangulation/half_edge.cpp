@@ -411,7 +411,7 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
             }
         } while (start != edgeToDivide);
     }
-    
+
     if (isLoop) {
         std::cout << "loop!" << std::endl;
         return;
@@ -421,7 +421,7 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
     std::vector<Vertex*> subVerts;
     for (int i = 0;i < divideNum-1;i++) {
         std::pair<Vertex*, Vertex*> p = start->getVerts();
-        glm::vec3 mixPos = glm::mix(p.first->pos, p.second->pos, (i + 1) / divideNum);
+        glm::vec3 mixPos = glm::mix(p.first->pos, p.second->pos, (i + 1.f) / divideNum);
         uPtr<Vertex> subVert = mkU<Vertex>(mixPos, nullptr);
         subVerts.push_back(subVert.get());
         verts.push_back(std::move(subVert));
@@ -446,7 +446,9 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
     //process quad between boundary
     HalfEdge* curr = start;
     while (curr->getSymHalfEdge()->getFace() != nullptr) {
-        subVerts = subDivideQuad(subVerts, curr, curr);
+        std::vector<Vertex*> nextVerts;
+        curr = subDivideQuad(subVerts, curr, nextVerts);
+        subVerts = nextVerts;
     }
 
     //process boundary again
@@ -460,6 +462,7 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
     std::vector<HalfEdge*> symHalf;
     symHalf.push_back(curr);
     for (int i = subVerts.size() - 1;i >= 0;i--) {
+        //assumption1: since the new generated halfedge will always make vertex update its halfedge
         symHalf.push_back(subVerts[i]->hEdge);
         uPtr<HalfEdge> hE = mkU<HalfEdge>(nullptr, nullptr, nullptr, subVerts[i]);
         nextHalf.push_back(hE.get());
@@ -468,25 +471,27 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
     nextHalf.push_back(start);
     for (int i = 0;i < nextHalf.size() - 1;i++) {
         nextHalf[i]->setNextEdge(nextHalf[i + 1]);
+
     }
     for (int i = 0;i < symHalf.size();i++) {
         nextHalf[i + 1]->setSymEdge(symHalf[i]);
     }
 }
 
-std::vector<Vertex*> Patch::subDivideQuad
-    (std::vector<Vertex*>& newVerts, HalfEdge* adjacentHalfEdge, HalfEdge* out_oppositeEdge) {
-    std::vector<Vertex*> result;
-    if (newVerts.size() == 0)return result;
+HalfEdge* Patch::subDivideQuad
+    (std::vector<Vertex*>& newVerts, HalfEdge* adjacentHalfEdge,  std::vector<Vertex*>& out_newVerts) {
+    //std::vector<Vertex*> out_oppositeHalfEdge;
+    HalfEdge* out_oppositeHalfEdge = adjacentHalfEdge;
+    if (newVerts.size() == 0)return out_oppositeHalfEdge;
     HalfEdge* halfEdge = adjacentHalfEdge->getSymHalfEdge();
     //store symEdge from the quad that inputs adjacentHalfEdge
     std::vector<HalfEdge*> symEdge;
     for (int i = 0;i < newVerts.size();i++) {
-        //since the new generated halfedge will always make vertex update its halfedge
+        //assumption1: since the new generated halfedge will always make vertex update its halfedge
         symEdge.push_back(newVerts[i]->hEdge);
     }
     symEdge.push_back(adjacentHalfEdge);
-    
+
     //store the halfedges that shares the side with quad that inputs halfedge
     std::vector<HalfEdge*> hEdge;
     for (int i = newVerts.size()-1;i >=0 ;i--) {
@@ -499,26 +504,26 @@ std::vector<Vertex*> Patch::subDivideQuad
     //calculate new Vertex for output
     std::pair<Vertex*, Vertex*> pair = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getVerts();
     for (int i = 0;i < newVerts.size();i++) {
-        glm::vec3 mixPos = glm::mix(pair.first->pos, pair.second->pos, (i + 1) / (newVerts.size()+1));
+        glm::vec3 mixPos = glm::mix(pair.first->pos, pair.second->pos, (i + 1.f) / (newVerts.size()+1));
         uPtr<Vertex> newVert = mkU<Vertex>(mixPos, nullptr);
-        result.push_back(newVert.get());
+        out_newVerts.push_back(newVert.get());
         verts.push_back(std::move(newVert));
     }
 
     //generate halfedges that are going to share side with next adjacent quad
     std::vector<HalfEdge*> toCombineEdge;
-    for (int i = 0;i < result.size();i++) {
-        uPtr<HalfEdge> newHEdge = mkU<HalfEdge>(nullptr, nullptr, nullptr, result[i]);
+    for (int i = 0;i < out_newVerts.size();i++) {
+        uPtr<HalfEdge> newHEdge = mkU<HalfEdge>(nullptr, nullptr, nullptr, out_newVerts[i]);
         toCombineEdge.push_back(newHEdge.get());
         hEdges.push_back(std::move(newHEdge));
     }
-    out_oppositeEdge = halfEdge->getNextHalfEdge()->getNextHalfEdge();
-    toCombineEdge.push_back(out_oppositeEdge);
+    out_oppositeHalfEdge = halfEdge->getNextHalfEdge()->getNextHalfEdge();
+    toCombineEdge.push_back(out_oppositeHalfEdge);
 
     //generate new quads
     std::vector<Face*> allQuads;
     allQuads.push_back(halfEdge->getFace());
-    for (int i = 0;i < result.size();i++) {
+    for (int i = 0;i < out_newVerts.size();i++) {
         uPtr<Face> newQuad = mkU<Face>();
         allQuads.push_back(newQuad.get());
         quads.push_back(std::move(newQuad));
@@ -526,7 +531,7 @@ std::vector<Vertex*> Patch::subDivideQuad
 
     //connect hEdge and toCombineEdge
     //   ^<----e1-----^
-    //   ||           |out_oppositeEdge
+    //   ||           |out_oppositeHalfEdge
     //   ||-----------|
     //   ||           |
     //   ||-----------|
@@ -535,18 +540,21 @@ std::vector<Vertex*> Patch::subDivideQuad
 
     std::unordered_map<std::pair<Vertex*, Vertex*>, HalfEdge*, HEdgeHash> SYMmap;
     //for halfedge in the center
-    for (int i = 0;i < result.size()-1;i++) {
+    for (int i = 0;i < out_newVerts.size()-1;i++) {
         HalfEdge* rightE = toCombineEdge[i + 1];
         HalfEdge* leftE = hEdge[hEdge.size() - 1 - (i + 1)];
-        
-        uPtr<HalfEdge> lowerE = mkU<HalfEdge>(rightE, nullptr, 
-                            allQuads[i + 1], result[i]);
-        processSYM(&SYMmap, lowerE.get(), newVerts[i], result[i]);
-        
-        uPtr<HalfEdge> upperE = mkU<HalfEdge>(leftE, nullptr, 
-                            allQuads[i + 1], newVerts[i + 1]);
-        processSYM(&SYMmap, upperE.get(), result[i + 1], newVerts[i + 1]);
-        
+
+        uPtr<HalfEdge> lowerE = mkU<HalfEdge>(rightE, nullptr,
+                            allQuads[i + 1], nullptr);
+        //must do this otherwise the newverts's halfedge will be reset which will affect our assumption1
+        lowerE->vert = out_newVerts[i];
+        processSYM(&SYMmap, lowerE.get(), newVerts[i], out_newVerts[i]);
+
+        uPtr<HalfEdge> upperE = mkU<HalfEdge>(leftE, nullptr,
+                            allQuads[i + 1], nullptr);
+        upperE->vert = newVerts[i + 1];
+        processSYM(&SYMmap, upperE.get(), out_newVerts[i + 1], newVerts[i + 1]);
+
         rightE->setNextEdge(upperE.get());
         leftE->setNextEdge(lowerE.get());
 
@@ -554,40 +562,45 @@ std::vector<Vertex*> Patch::subDivideQuad
         hEdges.push_back(std::move(upperE));
     }
     //for halfedge on the upper and lower bound
-    
+
     //For upper bound
-    //right edge
-    out_oppositeEdge->setFace(allQuads[allQuads.size() - 1]);
     //upper edge
-    HalfEdge* e1 = out_oppositeEdge->getNextHalfEdge();
+    HalfEdge* e1 = out_oppositeHalfEdge->getNextHalfEdge();
     e1->setNextEdge(hEdge[0]);
     e1->setFace(allQuads[allQuads.size() - 1]);
+    //right edge
+    out_oppositeHalfEdge->setFace(allQuads[allQuads.size() - 1]);
+
     //lower edge
-    uPtr<HalfEdge> upperLowerBound = mkU<HalfEdge>(out_oppositeEdge, nullptr,
-        allQuads[allQuads.size() - 1], result[result.size() - 1]);
-    processSYM(&SYMmap, upperLowerBound.get(), newVerts[result.size() - 1], result[result.size() - 1]);
+    uPtr<HalfEdge> upperLowerBound = mkU<HalfEdge>(out_oppositeHalfEdge, nullptr,
+        allQuads[allQuads.size() - 1],nullptr);
+    upperLowerBound->vert =  out_newVerts[out_newVerts.size() - 1];
+    processSYM(&SYMmap, upperLowerBound.get(), newVerts[out_newVerts.size() - 1], out_newVerts[out_newVerts.size() - 1]);
     //left edge
     hEdge[0]->setFace(allQuads[allQuads.size() - 1]);
     hEdge[0]->setNextEdge(upperLowerBound.get());
-    
+
     hEdges.push_back(std::move(upperLowerBound));
     //lower bound
     //lower
     HalfEdge* e2 = halfEdge->getNextHalfEdge();
     e2->setNextEdge(toCombineEdge[0]);
     //upper
-    uPtr<HalfEdge> lowerUpperBound = mkU<HalfEdge>(halfEdge, nullptr, 
-        allQuads[0], newVerts[0]);
-    processSYM(&SYMmap, lowerUpperBound.get(), result[0], newVerts[0]);
+    uPtr<HalfEdge> lowerUpperBound = mkU<HalfEdge>(halfEdge, nullptr,
+        allQuads[0], nullptr);
+    lowerUpperBound->vert = newVerts[0];
+    processSYM(&SYMmap, lowerUpperBound.get(), out_newVerts[0], newVerts[0]);
     //left
     //we don't need to do anything
     //right
     toCombineEdge[0]->setNextEdge(lowerUpperBound.get());
+    toCombineEdge[0]->setFace(allQuads[0]);
     hEdges.push_back(std::move(lowerUpperBound));
 
     //handle left symmetry
     for (int i = 0;i < symEdge.size();i++) {
         symEdge[i]->setSymEdge(hEdge[symEdge.size() - 1 - i]);
     }
-    return result;
+
+    return out_oppositeHalfEdge;
 }

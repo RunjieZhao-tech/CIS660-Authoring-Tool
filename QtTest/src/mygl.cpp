@@ -112,10 +112,11 @@ void MyGL::paintGL()
 
     //draw displays
     glDisable(GL_DEPTH_TEST);
+
+    m_progFlat.draw(m_patchDisplay);
     m_progFlat.draw(m_vertDisplay);
     m_progFlat.draw(m_faceDisplay);
     m_progFlat.draw(m_hEdgeDisplay);
-    m_progFlat.draw(m_patchDisplay);
     glEnable(GL_DEPTH_TEST);
 }
 void MyGL::keyPressEvent(QKeyEvent *e)
@@ -225,7 +226,7 @@ void MyGL::keyPressEvent(QKeyEvent *e)
 }
 
 void MyGL::changePatch(){
-    //m_colliders.clear();
+    m_colliders.clear();
     slot_setSelected(nullptr);
     for(unsigned long i=0;i<m_patch.verts.size();i++){
         m_colliders.push_back(m_patch.verts[i].get());
@@ -342,3 +343,12 @@ void MyGL::slot_mousePress(QMouseEvent* event){
     slot_setSelected(item);
     //printMousePos();
 };
+
+void MyGL::slot_subdivision(){
+    HalfEdge* ePtr = dynamic_cast<HalfEdge*>(m_selectedItem);
+    if(ePtr!=nullptr){
+        m_patch.subDivide(ePtr,3);
+        m_patchDisplay.updatePatch(&m_patch);
+        changePatch();
+    }
+}

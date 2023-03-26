@@ -77,6 +77,7 @@ signals:
 public slots:
     void slot_setSelected(QListWidgetItem*);
     void slot_mousePress(QMouseEvent * event);
+    void slot_subdivision();
 };
 
 

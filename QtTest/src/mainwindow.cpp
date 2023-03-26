@@ -44,6 +44,11 @@ MainWindow::MainWindow(QWidget *parent) :
             SIGNAL(sig_mousePress(QMouseEvent*)),
             ui->mygl,
             SLOT(slot_mousePress(QMouseEvent*)));
+    //subdivision test
+    connect(ui->pushButton,
+            SIGNAL(clicked(bool)),
+            ui->mygl,
+            SLOT(slot_subdivision()));
 }
 
 MainWindow::~MainWindow()

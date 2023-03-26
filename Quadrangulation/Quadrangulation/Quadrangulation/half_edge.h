@@ -100,7 +100,10 @@ public:
     //outputs are the new generated vertices on the other side of this quad,
     //and the oppoist edge for next adjacent quad 
     //this function only handles halfedges that are in the quad
-    std::vector<Vertex*> subDivideQuad(std::vector<Vertex*>& newVerts,HalfEdge* adjacentHalfEdge,HalfEdge* out_oppositeEdge);
+    HalfEdge* subDivideQuad(
+        std::vector<Vertex*>& newVerts, 
+        HalfEdge* adjacentHalfEdge, 
+        std::vector<Vertex*>& out_newVerts)
     ////To display patch's quads
     //void createDrawable(std::vector<int> glIndices, 
     //                    std::vector<glm::vec4> glPos,
