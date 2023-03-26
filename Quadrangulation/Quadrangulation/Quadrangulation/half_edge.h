@@ -5,9 +5,8 @@
 class HalfEdge;
 
 class Vertex{
-private:
-    HalfEdge* hEdge;//A pointer to one of the HalfEdges that points to this Vertex
 public:
+    HalfEdge* hEdge;//A pointer to one of the HalfEdges that points to this Vertex
     glm::vec3 pos;//A vec3 for storing its position
     Vertex(glm::vec3 pos, HalfEdge* hEdge);
     Vertex();
