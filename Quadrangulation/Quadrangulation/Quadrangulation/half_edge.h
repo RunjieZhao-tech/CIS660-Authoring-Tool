@@ -94,9 +94,16 @@ public:
     void quadrangulate();
     //this method will return new generated quad after division
     void subDivide(HalfEdge* edgeToDivide, int divideNum);
-    //To display patch's quads
-    void createDrawable(std::vector<int> glIndices, 
-                        std::vector<glm::vec4> glPos,
-                        std::vector<glm::vec4> glCol);
+    //helper function to subdivide quad, 
+    //inputs are the new generated vertices on the shared side of the adjacent quad, 
+    //and the adjacent quad's halfedge that originally shares that side
+    //outputs are the new generated vertices on the other side of this quad,
+    //and the oppoist edge for next adjacent quad 
+    //this function only handles halfedges that are in the quad
+    std::vector<Vertex*> subDivideQuad(std::vector<Vertex*>& newVerts,HalfEdge* adjacentHalfEdge,HalfEdge* out_oppositeEdge);
+    ////To display patch's quads
+    //void createDrawable(std::vector<int> glIndices, 
+    //                    std::vector<glm::vec4> glPos,
+    //                    std::vector<glm::vec4> glCol);
 };
 
