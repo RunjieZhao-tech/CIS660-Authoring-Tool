@@ -1,4 +1,5 @@
-Quadrangulation/Quadrangulation/.vs/
+build-*
+*.pro.user
 
 *.obj
 #https://stackoverflow.com/questions/30868544/gitignore-wont-ignore-vs-folder-for-visual-studio-2015-rc-on-windows7-8
