@@ -1,0 +1,25 @@
+global string $gMainWindow;
+global float $degree;
+global string $files[];
+global string $path;
+global proc string browseFiles( ) {
+	string $basicFilter = "*.txt";
+	$files = `fileDialog2 -fileFilter $basicFilter -dialogStyle 2`;
+	return $files[0];
+}
+
+
+global proc window_generate( ){
+	window -title "Dialog";
+	string $cols = `columnLayout`; 
+	button -label "Browse" -w 50 -command "$path = browseFiles()"; 
+	string $iter = `intSliderGrp -label "Iterations" -field true -fieldMinValue -50 -fieldMaxValue 50 -minValue -10 -maxValue 10 -value 0 iter`;
+	string $steps = `floatSliderGrp -label "Default Step Size" -field true -fieldMinValue -50 -fieldMaxValue 50 -minValue -10 -maxValue 10 -value 0 steps`;
+	string $degree = `floatSliderGrp -label "Default Angle" -field true -fieldMinValue -180 -fieldMaxValue 180 -minValue -180 -maxValue 180 -value 0 degree`;
+	button -label "OK" -w 50 -command "LSystemCmd -it `intSliderGrp -q -value iter` -degree `floatSliderGrp -q -value degree` -step `floatSliderGrp -q -value steps` -grammar $path";
+	showWindow;
+}
+
+menu -label "LSystem" -parent $gMainWindow -helpMenu true;
+	menuItem -label "Create LSystem" -command "window_generate();";
+	menuItem -label "Create Dynamic LSystem" -command "createNode transform -n LSystem1;createNode mesh -n LSystemShape1 -p LSystem1;sets -add initialShadingGroup LSystemShape1; createNode LSystemNode -n LSystemNode1;connectAttr LSystemNode1.output_geometry LSystemShape1.inMesh;";

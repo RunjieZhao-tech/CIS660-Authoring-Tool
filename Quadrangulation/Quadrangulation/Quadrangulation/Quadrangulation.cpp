@@ -1,14 +1,65 @@
 //Quadrangulation Reducing Points
-
+#include <maya/MPxCommand.h>
+#include <maya/MFnPlugin.h>
+#include <maya/MIOStream.h>
+#include <maya/MString.h>
+#include <maya/MArgList.h>
+#include <maya/MGlobal.h>
+#include <maya/MSimple.h>
+#include <maya/MDoubleArray.h>
+#include <maya/MPoint.h>
+#include <maya/MPointArray.h>
+#include <maya/MFnNurbsCurve.h>
+#include <maya/MDGModifier.h>
+#include <maya/MPlugArray.h>
+#include <maya/MVector.h>
+#include <maya/MFnDependencyNode.h>
+#include <maya/MStringArray.h>
+#include <list>
 #include <iostream>
 #include "half_edge.h"
 #include "glm/glm.hpp"
+#include "maya_ui.h"
 void reducePoints(int input[],int times);
 void Test();
 
-int main()
+MStatus initializePlugin(MObject obj)
 {
-    Test();
+    MStatus   status = MStatus::kSuccess;
+    MFnPlugin plugin(obj, "MyPlugin", "1.0", "Any");
+
+    char buffer[2048];
+
+    MString pluginPath = plugin.loadPath();
+
+    MString menuPath = MString("source \"") + pluginPath + MString("/ui.mel\"");
+
+    sprintf_s(buffer, 2048, menuPath.asChar(), pluginPath);
+
+    MGlobal::executeCommand(buffer, true);
+
+    // Register Command
+    status = plugin.registerCommand("maya_ui_cmd", maya_ui::creator);
+    if (!status) {
+        status.perror("registerCommand");
+        return status;
+    }
+
+    return status;
+}
+
+MStatus uninitializePlugin(MObject obj)
+{
+    MStatus   status = MStatus::kSuccess;
+    MFnPlugin plugin(obj);
+
+    status = plugin.deregisterCommand("maya_ui_cmd");
+    if (!status) {
+        status.perror("deregisterCommand");
+        return status;
+    }
+
+    return status;
 }
 
 //helper function
@@ -159,3 +210,5 @@ void Test(){
         std::cout << "no2 " << no2->pos.x << " " << no2->pos.y << " " << no2->pos.z << std::endl;
     }
 }
+
+
