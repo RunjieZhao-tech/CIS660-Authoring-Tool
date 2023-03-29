@@ -42,7 +42,7 @@ public:
 };
 
 class HalfEdge {
-private:
+public:
     HalfEdge* nHEdge;//A pointer to the next HalfEdge in the loop of HalfEdges that lie on this HalfEdge's Face
     HalfEdge* sHEdge;//A pointer to the HalfEdge that lies parallel to this HalfEdge and which travels in the opposite direction and is part of an adjacent Face, i.e. this HalfEdge's symmetrical HalfEdge
     Face* face;//A pointer to the Face on which this HalfEdge lies
@@ -101,9 +101,9 @@ public:
     //and the oppoist edge for next adjacent quad 
     //this function only handles halfedges that are in the quad
     HalfEdge* subDivideQuad(
-        std::vector<Vertex*>& newVerts, 
-        HalfEdge* adjacentHalfEdge, 
-        std::vector<Vertex*>& out_newVerts)
+        std::vector<Vertex*>& newVerts,
+        HalfEdge* adjacentHalfEdge,
+        std::vector<Vertex*>& out_newVerts);
     ////To display patch's quads
     //void createDrawable(std::vector<int> glIndices, 
     //                    std::vector<glm::vec4> glPos,
