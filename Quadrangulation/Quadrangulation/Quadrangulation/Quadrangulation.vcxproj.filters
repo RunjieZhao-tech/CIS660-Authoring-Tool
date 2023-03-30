@@ -24,6 +24,9 @@
     <ClCompile Include="maya_ui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tile_solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="half_edge.h">

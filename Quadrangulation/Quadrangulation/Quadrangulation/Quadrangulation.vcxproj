@@ -72,7 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <SourcePath>$(VC_SourcePath);</SourcePath>
-    <IncludePath>.\glm</IncludePath>
+    <IncludePath>
+    </IncludePath>
     <TargetExt>.mll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -114,7 +115,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NT_PLUGIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\glm;C:\Program Files\Autodesk\Maya2023\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\Maya2023\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\GitStorage\CIS6600\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve;.\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +146,7 @@
     <ClCompile Include="half_edge.cpp" />
     <ClCompile Include="maya_ui.cpp" />
     <ClCompile Include="Quadrangulation.cpp" />
+    <ClCompile Include="tile_solver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="half_edge.h" />
