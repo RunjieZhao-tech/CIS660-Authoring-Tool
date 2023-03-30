@@ -152,6 +152,7 @@
     <ClInclude Include="half_edge.h" />
     <ClInclude Include="la.h" />
     <ClInclude Include="maya_ui.h" />
+    <ClInclude Include="tile_solver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
