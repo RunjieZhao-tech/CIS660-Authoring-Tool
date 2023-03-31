@@ -30,6 +30,7 @@ public:
     //this method will return adjacent quads, 
     //begins with the quad that has the symmetry halfedge of the input halfedge
     //and then other 3 quads in counterclockwise order
+    //the return vector's size will always be 4, if there is no face you will get a nullptr
     std::vector<Face*> getAdjacentFaces(HalfEdge* halfEdge);
     //       --------------------------
     //       |            |           |

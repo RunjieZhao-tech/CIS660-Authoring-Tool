@@ -1,23 +1,137 @@
 #include "tile_solver.h"
 
-
-std::vector<std::vector<Face*>> LTile::possibleTile(const std::vector<Face*>& quads)const {
-
+bool Tile::hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace)const {
+	for (auto tile : tiledFace) {
+		if (tile == QuadWantTile)return true;
+	}
+	return false;
 }
 
-std::vector<std::vector<Face*>> SquareTile::possibleTile(const std::vector<Face*>& quads)const {
+//tile[3]
+//    [2]
+//    [1][0]
+std::vector<std::vector<Face*>> LTile::possibleTile(std::vector<Face*>& quads)const {
+	std::vector<std::vector<Face*>> result;
+	for (auto quad : quads) {
+		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
+		for (auto halfEdge : halfEdges) {
+			std::vector<Face*> possibleTile;
+			//0
+			possibleTile.push_back(quad);
+			HalfEdge* sym = halfEdge->getSymHalfEdge();
+			Face* nextQuad = sym->getFace();
+			if (nextQuad == nullptr)continue;
+			//1
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+			sym = sym->getNextHalfEdge()->getSymHalfEdge();
+			nextQuad = sym->getFace();
+			if (nextQuad == nullptr || sym == nullptr)continue;
+			//2
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+			Face* rightFace = sym->getNextHalfEdge()->getSymHalfEdge()->getFace();
+			if (hasTiled(rightFace, possibleTile))continue;//to avoid vertex that has only 3 adjacent faces
+			sym = sym->getNextHalfEdge()->getNextHalfEdge()->getSymHalfEdge();
+			nextQuad = sym->getFace();
+			if (nextQuad == nullptr || sym == nullptr)continue;
+			//3
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
 
+			result.push_back(possibleTile);
+		}
+		
+	}
+	return result;
+}
+//tile[1][2]
+//    [0][3]
+std::vector<std::vector<Face*>> SquareTile::possibleTile(std::vector<Face*>& quads)const {
+	std::vector<std::vector<Face*>> result;
+	for (auto quad : quads) {
+		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
+		for (auto halfEdge : halfEdges) {
+			std::vector<Face*> possibleTile;
+			//0
+			possibleTile.push_back(quad);
+			HalfEdge* sym = halfEdge->getSymHalfEdge();
+			Face* nextQuad = sym->getFace();
+			if (nextQuad == nullptr)continue;
+			//1
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+			sym = sym->getNextHalfEdge()->getSymHalfEdge();
+			nextQuad = sym->getFace();
+			if (nextQuad == nullptr || sym == nullptr)continue;
+			//2
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+			sym = sym->getNextHalfEdge()->getSymHalfEdge();
+			nextQuad = sym->getFace();
+			if (nextQuad == nullptr || sym == nullptr)continue;
+			//3
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+
+			result.push_back(possibleTile);
+		}
+
+	}
+	return result;
+}
+//tile: [0][1][2]
+std::vector<std::vector<Face*>> L3Tile::possibleTile(std::vector<Face*>& quads)const {
+	std::vector<std::vector<Face*>> result;
+	for (auto quad : quads) {
+		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
+		for (auto halfEdge : halfEdges) {
+			std::vector<Face*> possibleTile;
+			//0
+			possibleTile.push_back(quad);
+			HalfEdge* sym = halfEdge->getSymHalfEdge();
+			Face* nextQuad = sym->getFace();
+			if (nextQuad == nullptr)continue;
+			//1
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+			sym = sym->getNextHalfEdge()->getNextHalfEdge()->getSymHalfEdge();
+			nextQuad = sym->getFace();
+			if (nextQuad == nullptr || sym == nullptr)continue;
+			//2
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+
+			result.push_back(possibleTile);
+		}
+
+	}
+	return result;
+}
+//tile: [0][1]
+std::vector<std::vector<Face*>> L2Tile::possibleTile(std::vector<Face*>& quads)const {
+	std::vector<std::vector<Face*>> result;
+	for (auto quad : quads) {
+		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
+		for (auto halfEdge : halfEdges) {
+			std::vector<Face*> possibleTile;
+			//0
+			possibleTile.push_back(quad);
+			HalfEdge* sym = halfEdge->getSymHalfEdge();
+			Face* nextQuad = sym->getFace();
+			if (nextQuad == nullptr)continue;
+			//1
+			if (hasTiled(nextQuad, possibleTile))continue;
+			possibleTile.push_back(nextQuad);
+
+			result.push_back(possibleTile);
+		}
+
+	}
+	return result;
 }
 
-std::vector<std::vector<Face*>> L3Tile::possibleTile(const std::vector<Face*>& quads)const {
-
-}
-
-std::vector<std::vector<Face*>> L2Tile::possibleTile(const std::vector<Face*>& quads)const {
-
-}
-
-std::vector<std::vector<Face*>> TileSolver::solveTiling(const std::vector<Face*>& quads, std::vector<Tile*>tiles)const {
+std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quads, std::vector<Tile*>tiles)const {
 	lprec* lp;
 	int Ncol = 0;//number of all possible tiling
 	int* T = nullptr;
@@ -53,7 +167,7 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(const std::vector<Face*>
 				colFactor.push_back(1);//since sum(T) is what we want, to make sure the size of colFactor and rowNumber stay the same
 			}
 			add_columnex(lp, rowNumber.size(), &colFactor[0], &rowNumber[0]);
-			set_binary(lp, colIndex+1, TRUE);
+			set_binary(lp, colIndex+1, TRUE);//tell lpsolver T is binary
 			colIndex++;
 		}
 	}
@@ -66,16 +180,22 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(const std::vector<Face*>
 	for (int i = 0;i < quads.size();i++) {
 		rowVal.erase(rowVal.begin(), rowVal.begin()+ totalColNum + 1);
 		get_row(lp, i + 1, &rowVal[0]);
-		add_constraint(lp, &rowVal[0], EQ /*LE*/, 1);
+		add_constraint(lp, &rowVal[0], /*EQ */LE, 1);
 	}
-
+	//rowId      colVal
+	//   v       v
+	//   v T1 T2 T3 ...
+	//  0| 4  1  3  ...  << row value
+	//  1| 1  1  1  ...
+	//  2| 0  1  0  ...
+	// ..|
 	//we want to maximize sum(W*T)
 	rowVal.erase(rowVal.begin(), rowVal.begin() + totalColNum + 1);
 	get_row(lp, 0, &rowVal[0]);
 	set_obj_fn(lp, &rowVal[0]);
 	set_maxim(lp);
 	solve(lp);
-	get_variables(lp, &rowVal[0]);//get result tiling
+	get_variables(lp, &rowVal[0]);//get result tiling for T1, T2 ...
 	std::vector<std::vector<Face*>> result;
 	//allocate memory
 	std::vector<int> rowId;
@@ -94,7 +214,7 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(const std::vector<Face*>
 		get_columnex(lp, i + 1, &colValue[0], &rowId[0]);
 		for (int i = 0;i < quads.size() + 1;i++) {
 			if (rowId[i] == 0) {
-				if (colValue[i] == 0)break;//useless value
+				if (colValue[i] == 0)break;//uninitialized useless value
 				continue;//objective row
 			}
 			Face* tiledQuad = quads[rowId[i] - 1];//because we store quad id begins with 1
