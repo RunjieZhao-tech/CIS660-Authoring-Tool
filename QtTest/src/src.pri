@@ -12,6 +12,7 @@ SOURCES += \
     $$PWD/scene/mesh.cpp \
     $$PWD/scene/skeleton.cpp \
     $$PWD/shaderprogram.cpp \
+    $$PWD/tile_solver.cpp \
     $$PWD/utils.cpp \
     $$PWD/la.cpp \
     $$PWD/drawable.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     $$PWD/scene/mesh.h \
     $$PWD/scene/skeleton.h \
     $$PWD/shaderprogram.h \
+    $$PWD/tile_solver.h \
     $$PWD/utils.h \
     $$PWD/drawable.h \
     $$PWD/camera.h \

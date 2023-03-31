@@ -352,3 +352,33 @@ void MyGL::slot_subdivision(){
         changePatch();
     }
 }
+
+void MyGL::slot_tile(){
+    Patch* p = &m_patch;
+    if(p==nullptr)return;
+    L3Tile l = L3Tile();
+    L2Tile l1 = L2Tile();
+    SquareTile l2 = SquareTile();
+    LTile l3 = LTile();
+    std::vector<Tile*> tiles;
+    tiles.push_back(&l);
+    tiles.push_back(&l1);
+    tiles.push_back(&l2);
+    tiles.push_back(&l3);
+    std::vector<Face*> quad;
+    for(auto&& q:p->quads){
+        quad.push_back(q.get());
+    }
+
+    TileSolver ts = TileSolver();
+    std::vector<std::vector<Face*>> tiling;
+    tiling = ts.solveTiling(quad,tiles);
+    for(int i=0;i<tiling.size();i++){
+        glm::vec3 color = glm::vec3(rand()%100/100.f,rand()%100/100.f,rand()%100/100.f);
+        for(Face* q:tiling[i]){
+            q->color = color;
+        }
+    }
+    m_patchDisplay.updatePatch(&m_patch);
+    update();
+}

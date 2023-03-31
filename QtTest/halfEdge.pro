@@ -9,6 +9,7 @@ win32 {
 #    LIBS += -lglut32
     LIBS += -lglu32
 }
+
 CONFIG += warn_on
 CONFIG += debug
 
@@ -50,3 +51,10 @@ address_sanitizer {
 HEADERS +=
 
 SOURCES +=
+
+# Absolute address of the .lib file
+LIBS += $$PWD/include/lp_solve/lpsolve55.lib
+
+
+# Absolute address of its header files (if any)
+INCLUDEPATH += $$PWD/include/lp_solve

@@ -128,6 +128,19 @@
      <string>subdivide</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="tileButton">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>370</y>
+      <width>92</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>tile</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

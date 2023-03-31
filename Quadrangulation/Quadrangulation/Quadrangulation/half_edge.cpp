@@ -557,6 +557,8 @@ HalfEdge* Patch::subDivideQuad
 
         rightE->setNextEdge(upperE.get());
         leftE->setNextEdge(lowerE.get());
+        rightE->setFace(allQuads[i + 1]);
+        leftE->setFace(allQuads[i + 1]);
 
         hEdges.push_back(std::move(lowerE));
         hEdges.push_back(std::move(upperE));

@@ -1,6 +1,6 @@
 #pragma once
 #include"lp_solve/lp_lib.h"
-#include "half_edge.h"
+#include "scene/halfedge.h"
 #include <iostream>
 #pragma comment(lib, "lp_solve/lpsolve55.lib")
 class Tile {

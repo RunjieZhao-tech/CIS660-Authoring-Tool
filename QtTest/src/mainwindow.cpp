@@ -49,6 +49,11 @@ MainWindow::MainWindow(QWidget *parent) :
             SIGNAL(clicked(bool)),
             ui->mygl,
             SLOT(slot_subdivision()));
+    //tile test
+    connect(ui->tileButton,
+            SIGNAL(clicked(bool)),
+            ui->mygl,
+            SLOT(slot_tile()));
 }
 
 MainWindow::~MainWindow()

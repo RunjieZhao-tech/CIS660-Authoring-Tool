@@ -645,7 +645,8 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
             }
         } while (start != edgeToDivide);
     }
-
+    std::cout << "id: " << start->id << std::endl;
+    std::cout << (start->getSymHalfEdge()->getFace() != nullptr) << std::endl;
     if (isLoop) {
         std::cout << "loop!" << std::endl;
         return;
@@ -683,6 +684,7 @@ void Patch::subDivide(HalfEdge* edgeToDivide, int divideNum) {
         std::vector<Vertex*> nextVerts;
         curr = subDivideQuad(subVerts, curr, nextVerts);
         subVerts = nextVerts;
+        std::cout << "process quad" << std::endl;
     }
 
     //process boundary again
@@ -791,6 +793,8 @@ HalfEdge* Patch::subDivideQuad
 
         rightE->setNextEdge(upperE.get());
         leftE->setNextEdge(lowerE.get());
+        rightE->setFace(allQuads[i + 1]);
+        leftE->setFace(allQuads[i + 1]);
 
         hEdges.push_back(std::move(lowerE));
         hEdges.push_back(std::move(upperE));
