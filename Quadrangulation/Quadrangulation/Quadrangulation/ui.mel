@@ -20,6 +20,18 @@ global proc window_generate( ){
 	showWindow;
 }
 
+global proc test_generate(){
+	polyPlane -n plg -w 1 -h 1 -sx 1 -sy 1 -ax 0 1 0 -cuv 2 -ch 1;
+	int $arr[] = `polyEvaluate -v plg`;
+	int $count;
+	for ($count = 0; $count < $arr[0]; $count++)
+	{
+		print(`pointPosition plg.vtx[$count]`);
+	}
+	print $arr;
+}
+
 menu -label "LSystem" -parent $gMainWindow -helpMenu true;
 	menuItem -label "Create LSystem" -command "window_generate();";
 	menuItem -label "Create Dynamic LSystem" -command "createNode transform -n LSystem1;createNode mesh -n LSystemShape1 -p LSystem1;sets -add initialShadingGroup LSystemShape1; createNode LSystemNode -n LSystemNode1;connectAttr LSystemNode1.output_geometry LSystemShape1.inMesh;";
+	menuItem -label "Test Selection" -command "test_generate()";
