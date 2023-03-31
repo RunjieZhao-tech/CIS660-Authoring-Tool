@@ -5,37 +5,48 @@
 #pragma comment(lib, "lp_solve/lpsolve55.lib")
 class Tile {
 public:
-	float weight = 4;
-	Tile() {};
+	float weight;
+	Tile(float w):weight(w){};
+	Tile():Tile(0) {};
+	//helper function
+	bool hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace)const;
 	//iterate all possible filing for a certain tile
-	virtual std::vector<std::vector<Face*>> possibleTile(const std::vector<Face*>& quads)const;
+	virtual std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const;
 };
 
 //tile[]
 //    []
 //    [][]
 class LTile: public Tile {
-	std::vector<std::vector<Face*>> possibleTile(const std::vector<Face*>& quads)const override;
+public:
+	LTile():Tile(4) {};
+	std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const override;
 };
 
 //tile[][]
 //    [][]
 class SquareTile : public Tile {
-	std::vector<std::vector<Face*>> possibleTile(const std::vector<Face*>& quads)const override;
+public:
+	SquareTile():Tile(4) {};
+	std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const override;
 };
 
 //tile: [][][]
 class L3Tile : public Tile {
-	std::vector<std::vector<Face*>> possibleTile(const std::vector<Face*>& quads)const override;
+public:
+	L3Tile():Tile(3) {};
+	std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const override;
 };
 
 //tile: [][]
 class L2Tile : public Tile {
-	std::vector<std::vector<Face*>> possibleTile(const std::vector<Face*>& quads)const override;
+public:
+	L2Tile():Tile(2) {};
+	std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const override;
 };
 
 class TileSolver {
 public:
 	TileSolver();
-	std::vector<std::vector<Face*>> solveTiling(const std::vector<Face*>& quads, std::vector<Tile*>tiles)const;
+	std::vector<std::vector<Face*>> solveTiling(std::vector<Face*>& quads, std::vector<Tile*>tiles)const;
 };
