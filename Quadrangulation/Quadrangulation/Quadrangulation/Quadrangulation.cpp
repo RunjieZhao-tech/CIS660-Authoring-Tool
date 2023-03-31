@@ -23,6 +23,8 @@
 void reducePoints(int input[],int times);
 void Test();
 
+
+//Plugin Initialization
 MStatus initializePlugin(MObject obj)
 {
     MStatus   status = MStatus::kSuccess;
@@ -48,6 +50,7 @@ MStatus initializePlugin(MObject obj)
     return status;
 }
 
+//Unintialize plugin
 MStatus uninitializePlugin(MObject obj)
 {
     MStatus   status = MStatus::kSuccess;
