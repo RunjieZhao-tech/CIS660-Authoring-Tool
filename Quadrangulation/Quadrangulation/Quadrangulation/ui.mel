@@ -29,6 +29,7 @@ global proc test_generate(){
 		print(`pointPosition plg.vtx[$count]`);
 	}
 	print $arr;
+	polyCreateFacet -n poly1 -ch on -tx 1 -s 1 -p -10.748076 0 5.282411 -p 0.922682 0 9.718223 -p 4.525064 0 5.142732 -p -0.9474 0 -1.143308;
 }
 
 menu -label "LSystem" -parent $gMainWindow -helpMenu true;
