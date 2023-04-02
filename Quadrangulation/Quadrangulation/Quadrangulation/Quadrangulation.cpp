@@ -20,6 +20,7 @@
 #include "half_edge.h"
 #include "glm/glm.hpp"
 #include "maya_ui.h"
+#include "maya_node.h"
 void reducePoints(int input[],int times);
 void Test();
 

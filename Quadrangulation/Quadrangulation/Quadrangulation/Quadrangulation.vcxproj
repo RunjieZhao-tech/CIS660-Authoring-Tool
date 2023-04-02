@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="half_edge.cpp" />
+    <ClCompile Include="maya_node.cpp" />
     <ClCompile Include="maya_ui.cpp" />
     <ClCompile Include="Quadrangulation.cpp" />
     <ClCompile Include="tile_solver.cpp" />
@@ -151,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="half_edge.h" />
     <ClInclude Include="la.h" />
+    <ClInclude Include="maya_node.h" />
     <ClInclude Include="maya_ui.h" />
     <ClInclude Include="tile_solver.h" />
   </ItemGroup>

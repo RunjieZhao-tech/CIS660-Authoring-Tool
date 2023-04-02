@@ -27,6 +27,9 @@
     <ClCompile Include="half_edge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="maya_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="half_edge.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tile_solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maya_node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
