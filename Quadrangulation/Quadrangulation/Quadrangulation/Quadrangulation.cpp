@@ -48,6 +48,13 @@ MStatus initializePlugin(MObject obj)
         return status;
     }
 
+    //Register Node
+    status = plugin.registerNode("MayaNode", MayaNode::id, MayaNode::creator, MayaNode::initialize);
+    if (!status) {
+        status.perror("registerNode");
+        return status;
+    }
+
     return status;
 }
 
@@ -60,6 +67,12 @@ MStatus uninitializePlugin(MObject obj)
     status = plugin.deregisterCommand("maya_ui_cmd");
     if (!status) {
         status.perror("deregisterCommand");
+        return status;
+    }
+
+    status = plugin.deregisterNode(MayaNode::id);
+    if (!status) {
+        status.perror("deregisterNode");
         return status;
     }
 

@@ -34,5 +34,6 @@ public:
 	static MObject degree;
 	static MObject step;
 	static MObject time;
+	static MObject vertex_num;
 	static MTypeId id;
 };

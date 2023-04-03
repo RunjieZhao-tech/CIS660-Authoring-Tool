@@ -1,3 +1,4 @@
+/*
 #include "tile_solver.h"
 
 bool Tile::hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace)const {
@@ -182,7 +183,7 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quad
     rowVal = (REAL*)malloc((totalColNum)*sizeof(*rowVal));//allocate memory
     for (int i = 0;i < quads.size();i++) {
         get_row(lp, 1, rowVal);
-        add_constraint(lp, rowVal, /*EQ */LE, 1);
+        add_constraint(lp, rowVal, /*EQ *//*LE, 1);
         del_constraint(lp,1);
     }
 	//rowId      colVal
@@ -221,11 +222,12 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quad
 	}
     if (lp != NULL) {
         /* clean up such that all used memory by lpsolve is freed */
-        delete_lp(lp);
+        /*delete_lp(lp);
     }
     free(rowVal);
     free(colValue);
 
 	return result;
-}
+}*/
 
+/**/

@@ -10,6 +10,7 @@ MObject MayaNode::radius;
 MObject MayaNode::degree;
 MObject MayaNode::step;
 MObject MayaNode::time;
+MObject MayaNode::vertex_num;
 MTypeId MayaNode::id(0x80000);
 
 void* MayaNode::creator() {
@@ -26,12 +27,19 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		if (positionString == "") {
 			return MS::kSuccess;
 		}
-
+		
 		//degree
 		MDataHandle degreeHandle = data.inputValue(degree, &returnStatus);
 		McheckErr(returnStatus, "Error getting degree data handle\n");
 		double DEG = degreeHandle.asDouble();
+		
 
+		//number of vertices
+		MDataHandle vertexHandle = data.outputValue(vertex_num,&returnStatus);
+		McheckErr(returnStatus, "Error getting number of vertices data handle\n");
+		double Vertices = vertexHandle.asDouble();
+		std::string info = "in the maya node the numV value is " + std::to_string(Vertices);
+		MGlobal::displayInfo(info.c_str());
 		//step
 		MDataHandle stepHandle = data.inputValue(step, &returnStatus);
 		McheckErr(returnStatus, "Error getting angle data handle\n");
@@ -51,7 +59,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		MObject newOutputData = dataCreator.create(&returnStatus);
 		McheckErr(returnStatus, "Error Getting Output Data");
 
-		outputGeometryHandle.set(newOutputData);
+		//outputGeometryHandle.set(newOutputData);
 		data.setClean(plug);
 
 	}
@@ -68,6 +76,9 @@ MStatus MayaNode::initialize() {
 	//set attributes
 	MayaNode::inputPositions = geomAttr.create("input_positions", "pos", MFnData::kString, MObject::kNullObj, &returnStatus);
 	McheckErr(returnStatus, "Error creating node input position attribute\n");
+
+	MayaNode::vertex_num = sizeAttr.create("NumV","nv", MFnNumericData::kDouble,0,&returnStatus);
+	McheckErr(returnStatus, "Error creating number of nodes attribute\n");
 
 	MayaNode::degree = sizeAttr.create("degree", "deg", MFnNumericData::kDouble, 0, &returnStatus);
 	McheckErr(returnStatus, "Error creating lsystem node degree attribute\n");
@@ -86,6 +97,8 @@ MStatus MayaNode::initialize() {
 	returnStatus = addAttribute(MayaNode::inputPositions);
 	McheckErr(returnStatus, "Error adding input geometry attribute");
 
+	returnStatus = addAttribute(MayaNode::vertex_num);
+	McheckErr(returnStatus, "Error adding number of vertex geometry attribute");
 	//returnStatus = addAttribute(LSystemNode::radius);
 	//McheckErr(returnStatus,"Error adding size attribute");
 
@@ -109,12 +122,14 @@ MStatus MayaNode::initialize() {
 	returnStatus = attributeAffects(MayaNode::degree, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding degree attributeAffect");
 
+	returnStatus = attributeAffects(MayaNode::vertex_num, MayaNode::outputGeometry);
+	McheckErr(returnStatus, "Error adding vertex number attributeAffect");
+
 	returnStatus = attributeAffects(MayaNode::step, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding angle attributeAffect");
 
 	returnStatus = attributeAffects(MayaNode::time, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding time attributeAffect");
 
-	return MS::kSuccess;
 	return MS::kSuccess;
 }
