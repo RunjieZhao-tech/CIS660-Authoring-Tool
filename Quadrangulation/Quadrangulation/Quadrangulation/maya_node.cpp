@@ -18,7 +18,6 @@ void* MayaNode::creator() {
 
 MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	MStatus returnStatus;
-	MStatus returnStatus;
 	if (plug == outputGeometry) {
 		//retrieve the data
 		MDataHandle positionHandle = data.inputValue(inputPositions, &returnStatus);
