@@ -36,4 +36,5 @@ public:
 	static MObject time;
 	static MObject vertex_num;
 	static MTypeId id;
+	static MObject inputGeometry;
 };
