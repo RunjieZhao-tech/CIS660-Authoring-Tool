@@ -53,7 +53,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		int iteration = TIME.value();
 
 		//input geometry
-		MDataHandle fileHandle = data.inputValue(outputGeometry, &returnStatus);
+		MDataHandle fileHandle = data.inputValue(inputGeometry, &returnStatus);
 		MString inputFile = fileHandle.asString();
 		McheckErr(returnStatus, "ERROR: fileHandle\n");
 		if (inputFile == "") { 
