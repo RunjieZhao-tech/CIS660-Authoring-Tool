@@ -12,6 +12,7 @@ MObject MayaNode::step;
 MObject MayaNode::time;
 MObject MayaNode::vertex_num;
 MTypeId MayaNode::id(0x80000);
+MObject MayaNode::inputGeometry;
 
 void* MayaNode::creator() {
 	return new MayaNode();
@@ -52,6 +53,20 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		McheckErr(returnStatus, "Error getting angle data handle\n");
 		MTime TIME = timeHandle.asTime();
 		int iteration = TIME.value();
+
+		//input geometry
+		MDataHandle fileHandle = data.inputValue(inputGeometry, &returnStatus);
+		MString inputFile = fileHandle.asString();
+		McheckErr(returnStatus, "ERROR: fileHandle\n");
+		if (inputFile == "") { 
+			MGlobal::displayInfo("No info!");
+			return MS::kSuccess; 
+		}
+		else {
+			MGlobal::displayInfo(inputFile);
+			return MS::kSuccess;
+		}
+
 		//output geometry
 		MDataHandle outputGeometryHandle = data.outputValue(outputGeometry, &returnStatus);
 		McheckErr(returnStatus, "Error getting geometry data handle\n");
@@ -64,7 +79,9 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		//outputGeometryHandle.set(newOutputData);
 		data.setClean(plug);
 
-	
+
+
+	MGlobal::displayInfo("compute!");
 	return returnStatus;
 }
 
@@ -94,6 +111,8 @@ MStatus MayaNode::initialize() {
 	MayaNode::outputGeometry = geomAttr.create("output_geometry", "o_geom", MFnData::kMesh, MObject::kNullObj, &returnStatus);
 	McheckErr(returnStatus, "Error creating lsystem output geometry attribute\n");
 
+	MayaNode::inputGeometry = geomAttr.create("input_geometry", "i_geom", MFnData::kString);
+
 
 	//add attributes
 	returnStatus = addAttribute(MayaNode::inputPositions);
@@ -116,7 +135,8 @@ MStatus MayaNode::initialize() {
 	returnStatus = addAttribute(MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding output geometry attribute");
 
-
+	returnStatus = addAttribute(MayaNode::inputGeometry);
+	McheckErr(returnStatus, "Error adding input geometry attribute");
 	//set affect attributes
 	returnStatus = attributeAffects(MayaNode::inputPositions, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding input position attributeAffect");
@@ -131,6 +151,9 @@ MStatus MayaNode::initialize() {
 	McheckErr(returnStatus, "Error adding angle attributeAffect");
 
 	returnStatus = attributeAffects(MayaNode::time, MayaNode::outputGeometry);
+	McheckErr(returnStatus, "Error adding time attributeAffect");
+
+	returnStatus = attributeAffects(MayaNode::degree, MayaNode::step);
 	McheckErr(returnStatus, "Error adding time attributeAffect");
 
 	return MS::kSuccess;
