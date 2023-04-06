@@ -12,5 +12,6 @@ maya_ui::~maya_ui()
 
 MStatus maya_ui::doIt(const MArgList& args)
 {
+	MGlobal::displayInfo("Use the command maya ui");
 	return MStatus::kSuccess;
 }

@@ -19,7 +19,7 @@ void* MayaNode::creator() {
 
 MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	MStatus returnStatus;
-	if (plug == outputGeometry) {
+	
 		//retrieve the data
 		MDataHandle positionHandle = data.inputValue(inputPositions, &returnStatus);
 		McheckErr(returnStatus, "Error getting positions data handle\n");
@@ -28,6 +28,8 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			return MS::kSuccess;
 		}
 		
+		MGlobal::displayInfo(positionString);
+
 		//degree
 		MDataHandle degreeHandle = data.inputValue(degree, &returnStatus);
 		McheckErr(returnStatus, "Error getting degree data handle\n");
@@ -62,7 +64,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		//outputGeometryHandle.set(newOutputData);
 		data.setClean(plug);
 
-	}
+	
 	return returnStatus;
 }
 
