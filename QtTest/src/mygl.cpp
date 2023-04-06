@@ -15,7 +15,9 @@ MyGL::MyGL(QWidget *parent)
       m_hEdgeDisplay(this),
       m_patchDisplay(this),
       m_progLambert(this), m_progFlat(this),
-      m_glCamera(),hideSkinDisplay(true)
+      m_glCamera(),
+      t1(),t2(),t3(),t4(),
+      hideSkinDisplay(true)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -347,7 +349,7 @@ void MyGL::slot_mousePress(QMouseEvent* event){
 void MyGL::slot_subdivision(){
     HalfEdge* ePtr = dynamic_cast<HalfEdge*>(m_selectedItem);
     if(ePtr!=nullptr){
-        m_patch.subDivide(ePtr,3);
+        m_patch.subDivide(ePtr,10);
         m_patchDisplay.updatePatch(&m_patch);
         changePatch();
     }
@@ -356,15 +358,11 @@ void MyGL::slot_subdivision(){
 void MyGL::slot_tile(){
     Patch* p = &m_patch;
     if(p==nullptr)return;
-    L3Tile l = L3Tile();
-    L2Tile l1 = L2Tile();
-    SquareTile l2 = SquareTile();
-    LTile l3 = LTile();
     std::vector<Tile*> tiles;
-    tiles.push_back(&l);
-    tiles.push_back(&l1);
-    tiles.push_back(&l2);
-    tiles.push_back(&l3);
+    tiles.push_back(&t1);
+    tiles.push_back(&t2);
+    tiles.push_back(&t3);
+    tiles.push_back(&t4);
     std::vector<Face*> quad;
     for(auto&& q:p->quads){
         quad.push_back(q.get());
@@ -381,4 +379,34 @@ void MyGL::slot_tile(){
     }
     m_patchDisplay.updatePatch(&m_patch);
     update();
+}
+
+
+void MyGL::slot_t1Occur(int val){
+    t1.maxOccurence = val;
+    std::cout<<"t1 occur: " << val << std::endl;
+}
+void MyGL::slot_t2Occur(int val){
+    t2.maxOccurence = val;
+    std::cout<<"t2 occur: " << val << std::endl;
+}
+void MyGL::slot_t3Occur(int val){
+    t3.maxOccurence = val;
+    std::cout<<"t3 occur: " << val << std::endl;
+}
+void MyGL::slot_t4Occur(int val){
+    t4.maxOccurence = val;
+    std::cout<<"t4 occur: " << val << std::endl;
+}
+void MyGL::slot_t1Weight(double val){
+    t1.weight = val;
+}
+void MyGL::slot_t2Weight(double val){
+    t2.weight = val;
+}
+void MyGL::slot_t3Weight(double val){
+    t3.weight = val;
+}
+void MyGL::slot_t4Weight(double val){
+    t4.weight = val;
 }

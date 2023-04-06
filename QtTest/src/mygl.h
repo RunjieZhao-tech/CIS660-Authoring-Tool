@@ -46,6 +46,11 @@ private:
 
     Camera m_glCamera;
 
+    LTile t1;
+    I2Tile t2;
+    I3Tile t3;
+    SquareTile t4;
+
     bool hideSkinDisplay;
 
 //    int drawMode;//decide which program to draw mesh
@@ -80,6 +85,15 @@ public slots:
     void slot_mousePress(QMouseEvent * event);
     void slot_subdivision();
     void slot_tile();
+    void slot_t1Occur(int val);
+    void slot_t2Occur(int val);
+    void slot_t3Occur(int val);
+    void slot_t4Occur(int val);
+    void slot_t1Weight(double val);
+    void slot_t2Weight(double val);
+    void slot_t3Weight(double val);
+    void slot_t4Weight(double val);
+
 };
 
 

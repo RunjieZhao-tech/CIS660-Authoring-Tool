@@ -54,6 +54,40 @@ MainWindow::MainWindow(QWidget *parent) :
             SIGNAL(clicked(bool)),
             ui->mygl,
             SLOT(slot_tile()));
+    //occurence test
+    connect(ui->horizontalSlider,
+            SIGNAL(valueChanged(int)),
+            ui->mygl,
+            SLOT(slot_t1Occur(int)));
+    connect(ui->horizontalSlider_2,
+            SIGNAL(valueChanged(int)),
+            ui->mygl,
+            SLOT(slot_t2Occur(int)));
+    connect(ui->horizontalSlider_3,
+            SIGNAL(valueChanged(int)),
+            ui->mygl,
+            SLOT(slot_t3Occur(int)));
+    connect(ui->horizontalSlider_4,
+            SIGNAL(valueChanged(int)),
+            ui->mygl,
+            SLOT(slot_t4Occur(int)));
+    //weight test
+    connect(ui->doubleSpinBox,
+            SIGNAL(valueChanged(double)),
+            ui->mygl,
+            SLOT(slot_t1Weight(double)));
+    connect(ui->doubleSpinBox_2,
+            SIGNAL(valueChanged(double)),
+            ui->mygl,
+            SLOT(slot_t2Weight(double)));
+    connect(ui->doubleSpinBox_3,
+            SIGNAL(valueChanged(double)),
+            ui->mygl,
+            SLOT(slot_t3Weight(double)));
+    connect(ui->doubleSpinBox_4,
+            SIGNAL(valueChanged(double)),
+            ui->mygl,
+            SLOT(slot_t4Weight(double)));
 }
 
 MainWindow::~MainWindow()
