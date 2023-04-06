@@ -7,6 +7,7 @@
 class Tile {
 public:
 	float weight;
+    int maxOccurence=-1;
     Tile(float w):weight(w){};
     Tile():Tile(0) {};
     virtual ~Tile();
@@ -34,16 +35,16 @@ public:
 };
 
 //tile: [][][]
-class L3Tile : public Tile {
+class I3Tile : public Tile {
 public:
-    L3Tile():Tile(3) {};
+    I3Tile():Tile(3) {};
 	std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const override;
 };
 
 //tile: [][]
-class L2Tile : public Tile {
+class I2Tile : public Tile {
 public:
-    L2Tile():Tile(2) {};
+    I2Tile():Tile(2) {};
 	std::vector<std::vector<Face*>> possibleTile(std::vector<Face*>& quads)const override;
 };
 
