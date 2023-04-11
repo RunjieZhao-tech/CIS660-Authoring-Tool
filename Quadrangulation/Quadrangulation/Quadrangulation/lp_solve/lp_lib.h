@@ -211,7 +211,7 @@
 #include "lp_utils.h"
 
 #if (LoadInverseLib == TRUE) || (LoadLanguageLib == TRUE)
-  #ifdef WIN32
+  #ifdef _WIN64
     #include <windows.h>
   #else
     #include <dlfcn.h>
