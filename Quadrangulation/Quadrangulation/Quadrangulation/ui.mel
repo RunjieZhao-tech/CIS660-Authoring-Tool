@@ -36,7 +36,7 @@ global proc createTest(){
     string $s[] = `ls -sl`;
     int $nums = size($s);
     if($nums!=1)return;
-    
+    print("you are in createTest\n");
     string $plane = $s[0];
     string $node = `createNode MayaNode`;
     int $arr[] = `polyEvaluate -v $plane`;
