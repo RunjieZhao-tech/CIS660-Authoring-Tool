@@ -28,13 +28,24 @@ public:
 	static void* creator();
 	static MStatus initialize();
 
-	static MObject inputPositions;
-	static MObject outputGeometry;
-	static MObject radius;
-	static MObject degree;
-	static MObject step;
-	static MObject time;
-	static MObject vertex_num;
+	//static MObject inputPositions;
+	
+	//static MObject radius;
+	//static MObject time;
+	//static MObject vertex_num;
 	static MTypeId id;
+	
+	static MObject maxOccurency1;
+	static MObject maxOccurency2;
+	static MObject maxOccurency3;
+	static MObject maxOccurency4;
+
+	static MObject weight1;
+	static MObject weight2;
+	static MObject weight3;
+	static MObject weight4;
+
 	static MObject inputGeometry;
+	static MObject outputGeometry;
+
 };
