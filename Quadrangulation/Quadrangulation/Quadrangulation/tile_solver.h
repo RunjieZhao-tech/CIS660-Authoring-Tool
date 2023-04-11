@@ -1,4 +1,4 @@
-/*
+
 #pragma once
 #include"lp_solve/lp_lib.h"
 #include "half_edge.h"
@@ -53,4 +53,3 @@ public:
     TileSolver();
     std::vector<std::vector<Face*>> solveTiling(std::vector<Face*>& quads, std::vector<Tile*>tiles)const;
 };
-*/

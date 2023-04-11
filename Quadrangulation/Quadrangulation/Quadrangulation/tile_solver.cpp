@@ -1,4 +1,3 @@
-/*
 #include "tile_solver.h"
 
 bool Tile::hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace)const {
@@ -253,4 +252,3 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quad
 
 	return result;
 }
-*/
