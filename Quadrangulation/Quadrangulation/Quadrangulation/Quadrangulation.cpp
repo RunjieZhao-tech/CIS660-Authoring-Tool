@@ -17,10 +17,11 @@
 #include <maya/MStringArray.h>
 #include <list>
 #include <iostream>
-#include "half_edge.h"
-#include "glm/glm.hpp"
+//#include "half_edge.h"
+//#include "glm/glm.hpp"
 #include "maya_ui.h"
 #include "maya_node.h"
+//#include "tile_solver.h"
 void reducePoints(int input[],int times);
 void Test();
 
@@ -80,9 +81,9 @@ MStatus uninitializePlugin(MObject obj)
 }
 
 //helper function
-void printout(glm::vec3 val) {
+/*void printout(glm::vec3 val) {
     std::cout << val.x << " " << val.y << " " << val.z << std::endl;
-}
+}*/
 
 //Each index in the input represents the number of edges in one side
 //Now we suppose it is a triangle which means that there are at most 3 values in the array
@@ -114,7 +115,7 @@ void reducePoints(int input[], int times) {
 }
 
 //create a triangle and decompose it into several pieces.
-void Test(){
+/*void Test() {
     //create three vertices
     Vertex* v1 = new Vertex();
     v1->pos = glm::vec3(0, 0, 0);
@@ -210,9 +211,9 @@ void Test(){
         next_next->setNextEdge(center_edge.at((i + 1) % hf_arr.size())->getSymHalfEdge());
         center_edge.at((i + 1) % hf_arr.size())->getSymHalfEdge()->setNextEdge(current);
         face_arr.push_back(break_face);
-        /*std::cout << "current edges" << std::endl;
-        printout(next->getVerts().first->pos);
-        printout(next->getVerts().second->pos);*/
+        //std::cout << "current edges" << std::endl;
+        //printout(next->getVerts().first->pos);
+        //printout(next->getVerts().second->pos);
     }
     
     std::cout << "size " << face_arr.size() << std::endl;
@@ -227,5 +228,5 @@ void Test(){
         std::cout << "no2 " << no2->pos.x << " " << no2->pos.y << " " << no2->pos.z << std::endl;
     }
 }
-
+*/
 
