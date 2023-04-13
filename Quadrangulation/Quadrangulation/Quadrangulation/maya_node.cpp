@@ -158,6 +158,50 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		MGlobal::displayInfo(MString(str.c_str()));
 	}
 
+	//max occurency
+	MDataHandle maxOccurHandle = data.inputValue(maxOccurency1, &returnStatus);
+	McheckErr(returnStatus, "Error getting maxOccurency1 data handle\n");
+	int maxOccur1 = maxOccurHandle.asInt();
+	maxOccurHandle = data.inputValue(maxOccurency2, &returnStatus);
+	McheckErr(returnStatus, "Error getting maxOccurency2 data handle\n");
+	int maxOccur2 = maxOccurHandle.asInt();
+	MDataHandle maxOccurHandle = data.inputValue(maxOccurency3, &returnStatus);
+	McheckErr(returnStatus, "Error getting maxOccurency3 data handle\n");
+	int maxOccur3 = maxOccurHandle.asInt();
+	maxOccurHandle = data.inputValue(maxOccurency4, &returnStatus);
+	McheckErr(returnStatus, "Error getting maxOccurency4 data handle\n");
+	int maxOccur4 = maxOccurHandle.asInt();
+	
+	//weights
+	MDataHandle 
+	weightHandle = data.inputValue(weight1, &returnStatus);
+	McheckErr(returnStatus, "Error getting weight1 data handle\n");
+	float weight1 = weightHandle.asFloat();
+	weightHandle = data.inputValue(weight2, &returnStatus);
+	McheckErr(returnStatus, "Error getting weight2 data handle\n");
+	float weight2 = weightHandle.asFloat();
+	weightHandle = data.inputValue(weight3, &returnStatus);
+	McheckErr(returnStatus, "Error getting weight3 data handle\n");
+	float weight3 = weightHandle.asFloat();
+	weightHandle = data.inputValue(weight4, &returnStatus);
+	McheckErr(returnStatus, "Error getting weight4 data handle\n");
+	float weight4 = weightHandle.asFloat();
+
+	//construct patch
+	MIntArray vertexListf = MIntArray();
+	mesh.getPolygonVertices(0, vertexListf);
+	std::vector<glm::vec3> verts;
+	for (auto id : vertexListf) {
+		verts.push_back(glm::vec3(pts[id].x, pts[id].y, pts[id].z));
+	}
+	Patch p(verts);
+	p.quadrangulate();
+	MFnMeshData meshData;
+	MObject newOutputGeom = meshData.create(&returnStatus);
+	McheckErr(returnStatus, "Error creating geometry data\n");
+	weightHandle = data.outputValue(outputGeometry, &returnStatus);
+	McheckErr(returnStatus, "Error getting geometry data handle\n");
+
 
 	//https://download.autodesk.com/us/maya/2011help/API/class_m_fn_mesh.html
 		//int 	numVertices(MStatus * ReturnStatus = NULL) const
@@ -251,47 +295,6 @@ MStatus MayaNode::initialize() {
 
 	//test only
 	returnStatus = attributeAffects(MayaNode::weight4, MayaNode::weight3);
-
-	//MayaNode::inputPositions = geomAttr.create("input_positions", "pos", MFnData::kString, MObject::kNullObj, &returnStatus);
-	//McheckErr(returnStatus, "Error creating node input position attribute\n");
-
-	//MayaNode::vertex_num = sizeAttr.create("NumV","nv", MFnNumericData::kDouble,0,&returnStatus);
-	//McheckErr(returnStatus, "Error creating number of nodes attribute\n");
-
-	//MayaNode::time = unitAttr.create("time", "t", MFnUnitAttribute::kTime, 0, &returnStatus);
-	//McheckErr(returnStatus, "Error creating lsystem node angle attribute\n");
-	//MayaNode::inputGeometry = geomAttr.create("input_geometry", "i_geom", MFnData::kString);
-
-
-	//add attributes
-	//returnStatus = addAttribute(MayaNode::inputPositions);
-	//McheckErr(returnStatus, "Error adding input geometry attribute");
-
-	//returnStatus = addAttribute(MayaNode::vertex_num);
-	//McheckErr(returnStatus, "Error adding number of vertex geometry attribute");
-	//returnStatus = addAttribute(LSystemNode::radius);
-	//McheckErr(returnStatus,"Error adding size attribute");
-
-	//returnStatus = addAttribute(MayaNode::time);
-	//McheckErr(returnStatus, "Error adding time attribute");
-
-	//returnStatus = addAttribute(MayaNode::outputGeometry);
-	//McheckErr(returnStatus, "Error adding output geometry attribute");
-
-	//returnStatus = addAttribute(MayaNode::inputGeometry);
-	//McheckErr(returnStatus, "Error adding input geometry attribute");
-	////set affect attributes
-	//returnStatus = attributeAffects(MayaNode::inputPositions, MayaNode::outputGeometry);
-	//McheckErr(returnStatus, "Error adding input position attributeAffect");
-
-	//returnStatus = attributeAffects(MayaNode::vertex_num, MayaNode::outputGeometry);
-	//McheckErr(returnStatus, "Error adding vertex number attributeAffect");
-
-	//returnStatus = attributeAffects(MayaNode::weight1, MayaNode::outputGeometry);
-	//McheckErr(returnStatus, "Error adding angle attributeAffect");
-
-	//returnStatus = attributeAffects(MayaNode::time, MayaNode::outputGeometry);
-	//McheckErr(returnStatus, "Error adding time attributeAffect");
 
 	return MS::kSuccess;
 }

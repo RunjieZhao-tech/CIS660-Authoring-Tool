@@ -13,6 +13,8 @@
 #include <maya/MFnMeshData.h>
 
 #include <maya/MIOStream.h>
+#include "half_edge.h";
+#include "tile_solver.h"
 
 #define McheckErr(stat,msg) \
 	if (MS::kSuccess != stat) { \
