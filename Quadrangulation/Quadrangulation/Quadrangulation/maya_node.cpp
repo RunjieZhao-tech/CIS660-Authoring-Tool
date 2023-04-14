@@ -122,10 +122,13 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	MString filelocation = fileHandle.asString();
 	MGlobal::displayInfo("file location: " + filelocation);
 	std::ifstream myfile(filelocation.asChar());
+	
+	//initialize all the tiles
+	std::vector<std::vector<std::vector<bool>>> all_tiles;
+	
+	//allow the program to read files
 	if (myfile.is_open()) {
 		std::string mystring;
-		std::vector<std::vector<std::vector<bool>>> all_tiles;
-
 		//read each row in each while loop
 		while (myfile.good()) {
 			myfile >> mystring;
