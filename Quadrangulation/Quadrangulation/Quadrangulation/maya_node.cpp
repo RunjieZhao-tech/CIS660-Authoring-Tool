@@ -26,7 +26,7 @@
 //MObject MayaNode::vertex_num;
 MTypeId MayaNode::id(0x80000);
 
-
+MObject MayaNode::inputFile;
 MObject MayaNode::maxOccurency1;
 MObject MayaNode::maxOccurency2;
 MObject MayaNode::maxOccurency3;
@@ -37,6 +37,13 @@ MObject MayaNode::weight3;
 MObject MayaNode::weight4;
 MObject MayaNode::inputGeometry;
 MObject MayaNode::outputGeometry;
+
+//Helper Function
+std::vector<std::vector<bool>> initialize_vector() {
+	std::vector<bool> row(5,false);
+	std::vector<std::vector<bool>> res(5,row);
+	return res;
+}
 
 
 void* MayaNode::creator() {
@@ -107,6 +114,24 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		//
 	MDataHandle oponentList = data.inputValue(inputGeometry, &returnStatus);
 	McheckErr(returnStatus, "Error getting geometry data handle\n");
+	
+	
+	//handle the input file location
+	MDataHandle fileHandle = data.inputValue(inputFile,&returnStatus);
+	McheckErr(returnStatus, "Error getting file position handle\n");
+	MString filelocation = fileHandle.asString();
+	MGlobal::displayInfo("file location: " + filelocation);
+	std::ifstream myfile(filelocation.asChar());
+	if (myfile.is_open()) {
+		std::string mystring;
+		while (myfile.good()) {
+			myfile >> mystring;
+			MGlobal::displayInfo(mystring.c_str());
+		}
+	}
+	myfile.close();
+
+	
 	//MObject mesh = oponentList.asMesh();
 	MFnMesh mesh(oponentList.asMesh());
 	MGlobal::displayInfo("numVertices: " + mesh.numVertices());
@@ -159,13 +184,13 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	}
 
 	//max occurency
-	MDataHandle maxOccurHandle = data.inputValue(maxOccurency1, &returnStatus);
+	/*MDataHandle maxOccurHandle = data.inputValue(maxOccurency1, &returnStatus);
 	McheckErr(returnStatus, "Error getting maxOccurency1 data handle\n");
 	int maxOccur1 = maxOccurHandle.asInt();
 	maxOccurHandle = data.inputValue(maxOccurency2, &returnStatus);
 	McheckErr(returnStatus, "Error getting maxOccurency2 data handle\n");
 	int maxOccur2 = maxOccurHandle.asInt();
-	MDataHandle maxOccurHandle = data.inputValue(maxOccurency3, &returnStatus);
+	maxOccurHandle = data.inputValue(maxOccurency3, &returnStatus);
 	McheckErr(returnStatus, "Error getting maxOccurency3 data handle\n");
 	int maxOccur3 = maxOccurHandle.asInt();
 	maxOccurHandle = data.inputValue(maxOccurency4, &returnStatus);
@@ -195,7 +220,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		verts.push_back(glm::vec3(pts[id].x, pts[id].y, pts[id].z));
 	}
 	Patch p(verts);
-	p.quadrangulate();
+	//p.quadrangulate();
 	MFnMeshData meshData;
 	MObject newOutputGeom = meshData.create(&returnStatus);
 	McheckErr(returnStatus, "Error creating geometry data\n");
@@ -213,6 +238,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	//	MStatus 	getPoints(MPointArray & vertexArray, MSpace::Space space = MSpace::kObject) const
 	//	MStatus 	getVertices(MIntArray & vertexCount, MIntArray & vertexList) const
 	//	MStatus 	getPolygonVertices(int polygonId, MIntArray & vertexList) const
+	*/
 	data.setClean(plug);
 
 	MGlobal::displayInfo("compute!");
@@ -227,6 +253,12 @@ MStatus MayaNode::initialize() {
 	MStatus returnStatus;
 
 	//set attributes
+	//set input file location
+	MayaNode::inputFile = geomAttr.create("InputFile", "inputfile", MFnData::kString,MObject::kNullObj,&returnStatus);
+	McheckErr(returnStatus,"Error creating input file attribte\n");
+
+
+	//set occurrencies
 	MayaNode::maxOccurency1 = sizeAttr.create("max_occurency_1", "max_occur_1", MFnNumericData::kInt, -1, &returnStatus);
 	McheckErr(returnStatus, "Error creating node max_occurency_1 attribute\n");
 	MayaNode::maxOccurency2 = sizeAttr.create("max_occurency_2", "max_occur_2", MFnNumericData::kInt, -1, &returnStatus);
@@ -251,6 +283,12 @@ MStatus MayaNode::initialize() {
 	McheckErr(returnStatus, "Error creating output_geometry attribute\n");
 
 	//add attributes
+
+	//add input file location attribute
+	returnStatus = addAttribute(MayaNode::inputFile);
+	McheckErr(returnStatus,"Error adding input files attribute");
+
+	//add occurrencies attributes
 	returnStatus = addAttribute(MayaNode::maxOccurency1);
 	McheckErr(returnStatus, "Error adding max_occurency_1 attribute");
 	returnStatus = addAttribute(MayaNode::maxOccurency2);
@@ -275,6 +313,12 @@ MStatus MayaNode::initialize() {
 	McheckErr(returnStatus, "Error adding output geometry attribute");
 
 	//attributes affect
+
+	//input file position
+	returnStatus = attributeAffects(MayaNode::inputFile, MayaNode::outputGeometry);
+	McheckErr(returnStatus, "Error adding input position attributeAffect");
+
+	//occurrencies affect
 	returnStatus = attributeAffects(MayaNode::maxOccurency1, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding max_occurency_1 attributeAffect");
 	returnStatus = attributeAffects(MayaNode::maxOccurency2, MayaNode::outputGeometry);
@@ -295,6 +339,9 @@ MStatus MayaNode::initialize() {
 
 	//test only
 	returnStatus = attributeAffects(MayaNode::weight4, MayaNode::weight3);
+	McheckErr(returnStatus, "Error adding weight4 in the test");
+	returnStatus = attributeAffects(MayaNode::inputFile, MayaNode::weight3);
+	McheckErr(returnStatus, "Error adding input position attributeAffect in the test");
 
 	return MS::kSuccess;
 }
