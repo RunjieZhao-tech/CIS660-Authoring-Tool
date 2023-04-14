@@ -114,7 +114,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		//
 	MDataHandle oponentList = data.inputValue(inputGeometry, &returnStatus);
 	McheckErr(returnStatus, "Error getting geometry data handle\n");
-	
+
 	
 	//handle the input file location
 	MDataHandle fileHandle = data.inputValue(inputFile,&returnStatus);
@@ -124,9 +124,42 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	std::ifstream myfile(filelocation.asChar());
 	if (myfile.is_open()) {
 		std::string mystring;
+		std::vector<std::vector<std::vector<bool>>> all_tiles;
+
+		//read each row in each while loop
 		while (myfile.good()) {
 			myfile >> mystring;
+			std::vector<std::vector<bool>> tile = initialize_vector();
+			//iterate through each row to get the quads face
+			int row_num = 0;
+			int col_num = 0;
+			for (int i = 0; i < mystring.length(); i++) {
+				if (mystring[i] == '/') {
+					row_num++;
+					col_num = 0;
+					continue;
+				}
+				if (mystring[i] == 'F') {
+					tile[row_num][col_num] = true;
+					col_num++;
+				}
+			}
+			all_tiles.push_back(tile);
 			MGlobal::displayInfo(mystring.c_str());
+		}
+
+		//iterate through all tiles
+		for (int i = 0; i < all_tiles.size(); i++) {
+			for (int j = 0; j < all_tiles.at(i).size(); j++) {
+				for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
+					if (all_tiles[i][j][k]) {
+						MGlobal::displayInfo("True");
+					}
+					else {
+						MGlobal::displayInfo("False");
+					}
+				}
+			}
 		}
 	}
 	myfile.close();
