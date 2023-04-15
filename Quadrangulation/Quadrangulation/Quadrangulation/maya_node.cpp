@@ -45,6 +45,73 @@ std::vector<std::vector<bool>> initialize_vector() {
 	return res;
 }
 
+//has tiled function
+bool hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace) {
+	for (auto tile : tiledFace) {
+		if (tile == QuadWantTile)return true;
+	}
+	return false;
+}
+
+//given a box with customized tiles and all faces, find how the possibilities of how it can be fit into the template
+std::vector<std::vector<Face*>> possibleTiles(std::vector<Face*>& quads, std::vector<std::vector<bool>> box) {
+	std::vector<std::vector<Face*>> result;
+	for (auto quad : quads) {
+		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
+		for (auto halfEdge : halfEdges) {
+			std::vector<Face*> possibleTile;
+			//test new algorithm
+			bool empty = false;
+			//iterate the customized tile in the box;
+			for (int i = 0; i < box.size(); i++) {
+
+				for (int j = 0; j < box.size(); j++) {
+					HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+					if (box[i][j] == false) {
+						continue;
+					}
+					for (int r = 0; r < i; r++) {
+						bot = bot->getSymHalfEdge();
+						bot = bot->getNextHalfEdge()->getNextHalfEdge();
+						if (bot->getFace() == nullptr) {
+							empty = true;
+							break;
+						}
+					}
+					if (empty) {
+						break;
+					}
+					for (int c = 0; c < j; c++) {
+						bot = bot->getNextHalfEdge()->getSymHalfEdge();
+						if (bot->getFace() == nullptr) {
+							empty = true;
+							break;
+						}
+						bot = bot->getNextHalfEdge();
+					}
+					if (empty) {
+						break;
+					}
+					Face* possibleface = bot->getFace();
+					if (hasTiled(possibleface, possibleTile)) {
+						empty = true;
+						break;
+					}
+					else {
+						possibleTile.push_back(possibleface);
+					}
+				}
+				if (empty) {
+					break;
+				}
+			}
+			if (empty)continue;
+			result.push_back(possibleTile);
+		}
+
+	}
+	return result;
+}
 
 void* MayaNode::creator() {
 	return new MayaNode();
@@ -152,6 +219,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		}
 
 		//iterate through all tiles
+		//used for testing
 		for (int i = 0; i < all_tiles.size(); i++) {
 			for (int j = 0; j < all_tiles.at(i).size(); j++) {
 				for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
