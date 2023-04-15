@@ -39,24 +39,16 @@ global proc createTest(){
     print("you are in createTest\n");
     string $plane = $s[0];
     string $node = `createNode MayaNode`;
-    int $arr[] = `polyEvaluate -v $plane`;
-    string $result;
-    int $count;
-    for ($count = 0; $count < $arr[0]; $count++){
-        string $a = $plane + ".vtx[" + $count + "]";
-        float $vec3[] = `pointPosition $a`;
-        string $newStr = $vec3[0] + "," + $vec3[1] + "," + $vec3[2] + "," + " ";
-        $result = $result + $newStr;
-        print($newStr);
-    }
-    setAttr ($node + ".input_geometry") -type "string" ($result);
+	string $trans = `createNode transform`;
+	string $shape = `createNode mesh -p $trans`;
+    connectAttr ($plane + ".outMesh") ($node + ".input_geometry");
+	connectAttr ($node + ".output_geometry") ($shape + ".inMesh");
 }
 
 
 global string $gMainWindow;
 menu -p $gMainWindow -label "Layout pre-Master";
 menuItem -label "create Node test" -command "createTest";
-
 
 //menu -label "LSystem" -parent $gMainWindow -helpMenu true;
 	//menuItem -label "Create LSystem" -command "window_generate();";

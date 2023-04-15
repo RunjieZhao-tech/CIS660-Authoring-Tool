@@ -13,8 +13,9 @@
 #include <maya/MFnMeshData.h>
 
 #include <maya/MIOStream.h>
-#include "half_edge.h";
+#include "half_edge.h"
 #include "tile_solver.h"
+#include <unordered_set>
 
 #define McheckErr(stat,msg) \
 	if (MS::kSuccess != stat) { \
@@ -31,19 +32,11 @@ public:
 	static MStatus initialize();
 
 	//static MObject inputPositions;
-	
 	//static MObject radius;
 	//static MObject time;
 	//static MObject vertex_num;
-
 	static MTypeId id;
 	
-	//create file name
-	//File reading rules.
-	//1st: It must be a .txt file
-	//2nd: Use F to represent a quadrangulate and / to represent next line. Press enter tab to go to next line which represents a new tile
-	static MObject inputFile;
-
 	static MObject maxOccurency1;
 	static MObject maxOccurency2;
 	static MObject maxOccurency3;
@@ -57,4 +50,7 @@ public:
 	static MObject inputGeometry;
 	static MObject outputGeometry;
 
+
+	static std::vector<Vertex*> buildPolygon(std::vector<Face*>& Tile);
+	static HalfEdge* findNextBoundary(HalfEdge* currentEdge, const std::unordered_set<Face*>& tile);
 };

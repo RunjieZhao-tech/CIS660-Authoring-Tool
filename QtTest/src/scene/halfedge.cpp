@@ -357,25 +357,25 @@ Patch::Patch()
     glm::vec3 v = glm::vec3(0);
     vertices.push_back(v);
 
-//    v = glm::vec3(0,1,0);
-//    vertices.push_back(v);
-//    v = glm::vec3(0.5,1,0);
-//    vertices.push_back(v);
-//    v = glm::vec3(1,1,0);
-//    vertices.push_back(v);
+    v = glm::vec3(0,1,0);
+    vertices.push_back(v);
+    v = glm::vec3(1,1,0);
+    vertices.push_back(v);
+    v = glm::vec3(1,0,0);
+    vertices.push_back(v);
 //    v = glm::vec3(0.5,0,0);
 //    vertices.push_back(v);
 
-    v = glm::vec3(1,-1,0);
-    vertices.push_back(v);
-    v = glm::vec3(2,0,0);
-    vertices.push_back(v);
-    v = glm::vec3(2,1,0);
-    vertices.push_back(v);
-    v = glm::vec3(1,2,0);
-    vertices.push_back(v);
-    v = glm::vec3(0,1,0);
-    vertices.push_back(v);
+//    v = glm::vec3(1,-1,0);
+//    vertices.push_back(v);
+//    v = glm::vec3(2,0,0);
+//    vertices.push_back(v);
+//    v = glm::vec3(2,1,0);
+//    vertices.push_back(v);
+//    v = glm::vec3(1,2,0);
+//    vertices.push_back(v);
+//    v = glm::vec3(0,1,0);
+//    vertices.push_back(v);
 
 
     //*********initialize verts***************
@@ -622,6 +622,22 @@ void Patch::quadrangulate() {
 
         h->setNextEdge(nextH);
         bool success= processSYM(&SYMmap, h, boundVerts[index3], boundVerts[index2]);
+    }
+
+    //find bound to subdivide
+    auto edges2Search = boundVerts[0]->getHalfEdges();
+    HalfEdge* firstBound = nullptr;
+    for (int i = 0;i < edges2Search.size();i++) {
+        firstBound = edges2Search[i];
+        if (firstBound->getFace() == nullptr)break;
+    }
+    std::vector<HalfEdge*> edges2Subdivide;
+    for (int i = 0;i < boundVerts.size() / 2;i++) {
+        edges2Subdivide.push_back(firstBound);
+        firstBound = firstBound->getNextHalfEdge();
+    }
+    for (auto bound : edges2Subdivide) {
+        subDivide(bound, 5);
     }
     hasQuad = true;
 }

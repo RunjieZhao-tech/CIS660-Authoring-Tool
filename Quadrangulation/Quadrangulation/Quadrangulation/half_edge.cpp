@@ -158,7 +158,7 @@ std::vector<Face*> Face::getAdjacentFaces(HalfEdge* halfEdge) {
 //    return nullptr;
 //}
 
-Patch::Patch(std::vector<glm::vec3> vertices)
+Patch::Patch(std::vector<glm::vec3>& vertices)
     :hasQuad(false)
 {
     //*********initialize verts***************
@@ -388,6 +388,21 @@ void Patch::quadrangulate() {
 
         h->setNextEdge(nextH);
         bool success= processSYM(&SYMmap, h, boundVerts[index3], boundVerts[index2]);
+    }
+    //find bound to subdivide
+    auto edges2Search = boundVerts[0]->getHalfEdges();
+    HalfEdge* firstBound = nullptr;
+    for (int i = 0;i < edges2Search.size();i++) {
+        firstBound = edges2Search[i];
+        if (firstBound->getFace() == nullptr)break;
+    }
+    std::vector<HalfEdge*> edges2Subdivide;
+    for (int i = 0;i < boundVerts.size() / 2;i++) {
+        edges2Subdivide.push_back(firstBound);
+        firstBound = firstBound->getNextHalfEdge();
+    }
+    for (auto bound : edges2Subdivide) {
+        subDivide(bound, 5);
     }
     hasQuad = true;
 }
