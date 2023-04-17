@@ -79,7 +79,7 @@ struct HEdgeHash {
 //This is the class that we want to fill tiles in
 class Patch {
 public:
-    Patch(std::vector<glm::vec3> vertices);
+    Patch(std::vector<glm::vec3> &vertices);
     std::vector<std::pair<Vertex*,Vertex*>> sides;//only the vertices on the boundary in a counterclockwise order
     std::vector<uPtr<Face>> quads;//specific faces only has 4 sides
     std::vector<uPtr<HalfEdge>>hEdges;
