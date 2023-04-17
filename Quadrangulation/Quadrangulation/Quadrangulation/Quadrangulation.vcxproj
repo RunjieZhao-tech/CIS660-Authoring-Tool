@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -125,12 +125,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NT_PLUGIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\Program Files\Autodesk\Maya2022\include;E:\GitStorage\CIS6600\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve;E:\GitStorage\CIS6600\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\glm;C:\Program Files\Autodesk\Maya2023\include;D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve;D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\Maya2023\include;D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve;D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\Program Files\Autodesk\Maya2022\lib;C:\Program Files\Autodesk\Maya2023\lib;E:\GitStorage\CIS6600\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve;D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\Maya2023\lib;D:\Study\CIS660\AuthoringTool\CIS660-Authoring-Tool\Quadrangulation\Quadrangulation\Quadrangulation\lp_solve</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName).mll</OutputFile>
       <AdditionalDependencies>lpsolve55.lib;Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;OpenMayaAnim.lib;OpenMayaFX.lib;OpenMayaRender.lib;Image.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -160,6 +160,7 @@
     <ClCompile Include="maya_node.cpp" />
     <ClCompile Include="maya_ui.cpp" />
     <ClCompile Include="Quadrangulation.cpp" />
+    <ClCompile Include="Tiles.cpp" />
     <ClCompile Include="tile_solver.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="la.h" />
     <ClInclude Include="maya_node.h" />
     <ClInclude Include="maya_ui.h" />
+    <ClInclude Include="Tiles.h" />
     <ClInclude Include="tile_solver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

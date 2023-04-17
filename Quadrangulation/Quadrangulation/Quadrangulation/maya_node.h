@@ -47,6 +47,7 @@ public:
 	static MObject weight3;
 	static MObject weight4;
 
+	static MObject inputFile;
 	static MObject inputGeometry;
 	static MObject outputGeometry;
 
