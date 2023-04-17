@@ -1,5 +1,12 @@
 #include "tile_solver.h"
 
+//helper function
+std::vector<std::vector<bool>> initialize_vector() {
+    std::vector<bool> row(5,false);
+    std::vector<std::vector<bool>> res(5,row);
+    return res;
+}
+
 bool Tile::hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace)const {
 	for (auto tile : tiledFace) {
 		if (tile == QuadWantTile)return true;
@@ -13,12 +20,65 @@ Tile::~Tile(){}
 //    [2]
 //    [1][0]
 std::vector<std::vector<Face*>> LTile::possibleTile(std::vector<Face*>& quads)const {
+    std::vector<std::vector<bool>> box = initialize_vector();
+    box[0][0] = true;
+    box[1][0] = true;
+    box[2][0] = true;
+    box[2][1] = true;
 	std::vector<std::vector<Face*>> result;
 	for (auto quad : quads) {
 		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
 		for (auto halfEdge : halfEdges) {
 			std::vector<Face*> possibleTile;
-			//0
+
+            //test new algorithm
+            bool empty = false;
+            //iterate the customized tile in the box;
+            for(int i = 0; i < box.size(); i++){
+
+                for(int j = 0; j < box.size(); j++){
+                    HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+                    if(box[i][j] == false){
+                        continue;
+                    }
+                    for(int r = 0; r < i; r++){
+                        bot = bot->getSymHalfEdge();
+                        bot = bot->getNextHalfEdge()->getNextHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                    }
+                    if(empty){
+                        break;
+                    }
+                    for(int c = 0; c < j; c++){
+                        bot = bot->getNextHalfEdge()->getSymHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                        bot = bot->getNextHalfEdge();
+                    }
+                    if(empty){
+                        break;
+                    }
+                    Face* possibleface = bot->getFace();
+                    if(hasTiled(possibleface,possibleTile)){
+                        empty = true;
+                        break;
+                    }else{
+                        possibleTile.push_back(possibleface);
+                    }
+                }
+                if(empty){
+                    break;
+                }
+            }
+            if(empty)continue;
+
+/*
+            //0
 			possibleTile.push_back(quad);
 			HalfEdge* sym = halfEdge->getSymHalfEdge();
 			Face* nextQuad = sym->getFace();
@@ -39,8 +99,8 @@ std::vector<std::vector<Face*>> LTile::possibleTile(std::vector<Face*>& quads)co
 			if (nextQuad == nullptr || sym == nullptr)continue;
 			//3
 			if (hasTiled(nextQuad, possibleTile))continue;
-			possibleTile.push_back(nextQuad);
-
+            possibleTile.push_back(nextQuad);*/
+            std::cout << "success pushed into l tiles" << std::endl;
 			result.push_back(possibleTile);
 		}
 		
@@ -50,12 +110,64 @@ std::vector<std::vector<Face*>> LTile::possibleTile(std::vector<Face*>& quads)co
 //tile[1][2]
 //    [0][3]
 std::vector<std::vector<Face*>> SquareTile::possibleTile(std::vector<Face*>& quads)const {
+    std::vector<std::vector<bool>> box = initialize_vector();
+    box[0][0] = true;
+    box[1][0] = true;
+    box[0][1] = true;
+    box[1][1] = true;
+
 	std::vector<std::vector<Face*>> result;
 	for (auto quad : quads) {
 		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
 		for (auto halfEdge : halfEdges) {
 			std::vector<Face*> possibleTile;
-			//0
+            //test new algorithm
+            bool empty = false;
+            //iterate the customized tile in the box;
+            for(int i = 0; i < box.size(); i++){
+
+                for(int j = 0; j < box.size(); j++){
+                    HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+                    if(box[i][j] == false){
+                        continue;
+                    }
+                    for(int r = 0; r < i; r++){
+                        bot = bot->getSymHalfEdge();
+                        bot = bot->getNextHalfEdge()->getNextHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                    }
+                    if(empty){
+                        break;
+                    }
+                    for(int c = 0; c < j; c++){
+                        bot = bot->getNextHalfEdge()->getSymHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                        bot = bot->getNextHalfEdge();
+                    }
+                    if(empty){
+                        break;
+                    }
+                    Face* possibleface = bot->getFace();
+                    if(hasTiled(possibleface,possibleTile)){
+                        empty = true;
+                        break;
+                    }else{
+                        possibleTile.push_back(possibleface);
+                    }
+                }
+                if(empty){
+                    break;
+                }
+            }
+            if(empty)continue;
+            /*
+            //0
 			possibleTile.push_back(quad);
 			HalfEdge* sym = halfEdge->getSymHalfEdge();
 			Face* nextQuad = sym->getFace();
@@ -74,7 +186,7 @@ std::vector<std::vector<Face*>> SquareTile::possibleTile(std::vector<Face*>& qua
 			if (nextQuad == nullptr || sym == nullptr)continue;
 			//3
 			if (hasTiled(nextQuad, possibleTile))continue;
-			possibleTile.push_back(nextQuad);
+            possibleTile.push_back(nextQuad);*/
 
 			result.push_back(possibleTile);
 		}
@@ -84,12 +196,62 @@ std::vector<std::vector<Face*>> SquareTile::possibleTile(std::vector<Face*>& qua
 }
 //tile: [0][1][2]
 std::vector<std::vector<Face*>> I3Tile::possibleTile(std::vector<Face*>& quads)const {
-	std::vector<std::vector<Face*>> result;
+    std::vector<std::vector<bool>> box = initialize_vector();
+    box[0][0] = true;
+    box[0][1] = true;
+    box[0][2] = true;
+    std::vector<std::vector<Face*>> result;
 	for (auto quad : quads) {
 		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
 		for (auto halfEdge : halfEdges) {
 			std::vector<Face*> possibleTile;
-			//0
+            //test new algorithm
+            bool empty = false;
+            //iterate the customized tile in the box;
+            for(int i = 0; i < box.size(); i++){
+
+                for(int j = 0; j < box.size(); j++){
+                    HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+                    if(box[i][j] == false){
+                        continue;
+                    }
+                    for(int r = 0; r < i; r++){
+                        bot = bot->getSymHalfEdge();
+                        bot = bot->getNextHalfEdge()->getNextHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                    }
+                    if(empty){
+                        break;
+                    }
+                    for(int c = 0; c < j; c++){
+                        bot = bot->getNextHalfEdge()->getSymHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                        bot = bot->getNextHalfEdge();
+                    }
+                    if(empty){
+                        break;
+                    }
+                    Face* possibleface = bot->getFace();
+                    if(hasTiled(possibleface,possibleTile)){
+                        empty = true;
+                        break;
+                    }else{
+                        possibleTile.push_back(possibleface);
+                    }
+                }
+                if(empty){
+                    break;
+                }
+            }
+            if(empty)continue;
+            /*
+            //0
 			possibleTile.push_back(quad);
 			HalfEdge* sym = halfEdge->getSymHalfEdge();
 			Face* nextQuad = sym->getFace();
@@ -102,7 +264,7 @@ std::vector<std::vector<Face*>> I3Tile::possibleTile(std::vector<Face*>& quads)c
 			if (nextQuad == nullptr || sym == nullptr)continue;
 			//2
 			if (hasTiled(nextQuad, possibleTile))continue;
-			possibleTile.push_back(nextQuad);
+            possibleTile.push_back(nextQuad);*/
 
 			result.push_back(possibleTile);
 		}
@@ -112,19 +274,68 @@ std::vector<std::vector<Face*>> I3Tile::possibleTile(std::vector<Face*>& quads)c
 }
 //tile: [0][1]
 std::vector<std::vector<Face*>> I2Tile::possibleTile(std::vector<Face*>& quads)const {
+    std::vector<std::vector<bool>> box = initialize_vector();
+    box[0][0] = true;
+    box[0][1] = true;
 	std::vector<std::vector<Face*>> result;
 	for (auto quad : quads) {
 		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
 		for (auto halfEdge : halfEdges) {
 			std::vector<Face*> possibleTile;
-			//0
+            //test new algorithm
+            bool empty = false;
+            //iterate the customized tile in the box;
+            for(int i = 0; i < box.size(); i++){
+
+                for(int j = 0; j < box.size(); j++){
+                    HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+                    if(box[i][j] == false){
+                        continue;
+                    }
+                    for(int r = 0; r < i; r++){
+                        bot = bot->getSymHalfEdge();
+                        bot = bot->getNextHalfEdge()->getNextHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                    }
+                    if(empty){
+                        break;
+                    }
+                    for(int c = 0; c < j; c++){
+                        bot = bot->getNextHalfEdge()->getSymHalfEdge();
+                        if(bot->getFace() == nullptr){
+                            empty = true;
+                            break;
+                        }
+                        bot = bot->getNextHalfEdge();
+                    }
+                    if(empty){
+                        break;
+                    }
+                    Face* possibleface = bot->getFace();
+                    if(hasTiled(possibleface,possibleTile)){
+                        empty = true;
+                        break;
+                    }else{
+                        possibleTile.push_back(possibleface);
+                    }
+                }
+                if(empty){
+                    break;
+                }
+            }
+            if(empty)continue;
+            /*
+            //0
 			possibleTile.push_back(quad);
 			HalfEdge* sym = halfEdge->getSymHalfEdge();
 			Face* nextQuad = sym->getFace();
 			if (nextQuad == nullptr)continue;
 			//1
 			if (hasTiled(nextQuad, possibleTile))continue;
-			possibleTile.push_back(nextQuad);
+            possibleTile.push_back(nextQuad);*/
 
 			result.push_back(possibleTile);
 		}
