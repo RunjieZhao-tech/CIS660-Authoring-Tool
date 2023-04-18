@@ -1,10 +1,77 @@
 #include "tile_solver.h"
 
+//helper function
+std::vector<std::vector<bool>> initialize_vector1() {
+	std::vector<bool> row(5, false);
+	std::vector<std::vector<bool>> res(5, row);
+	return res;
+}
+
 bool Tile::hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace)const {
 	for (auto tile : tiledFace) {
 		if (tile == QuadWantTile)return true;
 	}
     return false;
+}
+
+std::vector<std::vector<Face*>> Tile::possibleTile(std::vector<Face*>& quads)const {
+	std::vector<std::vector<Face*>> result;
+	for (auto quad : quads) {
+		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
+		for (auto halfEdge : halfEdges) {
+			std::vector<Face*> possibleTile;
+
+			//test new algorithm
+			bool empty = false;
+			//iterate the customized tile in the box;
+			for (int i = 0; i < box.size(); i++) {
+
+				for (int j = 0; j < box.size(); j++) {
+					HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+					if (box[i][j] == false) {
+						continue;
+					}
+					for (int r = 0; r < i; r++) {
+						bot = bot->getSymHalfEdge();
+						bot = bot->getNextHalfEdge()->getNextHalfEdge();
+						if (bot->getFace() == nullptr) {
+							empty = true;
+							break;
+						}
+					}
+					if (empty) {
+						break;
+					}
+					for (int c = 0; c < j; c++) {
+						bot = bot->getNextHalfEdge()->getSymHalfEdge();
+						if (bot->getFace() == nullptr) {
+							empty = true;
+							break;
+						}
+						bot = bot->getNextHalfEdge();
+					}
+					if (empty) {
+						break;
+					}
+					Face* possibleface = bot->getFace();
+					if (hasTiled(possibleface, possibleTile)) {
+						empty = true;
+						break;
+					}
+					else {
+						possibleTile.push_back(possibleface);
+					}
+				}
+				if (empty) {
+					break;
+				}
+			}
+			if (empty)continue;
+			result.push_back(possibleTile);
+		}
+
+	}
+	return result;
 }
 
 Tile::~Tile(){}
@@ -13,11 +80,64 @@ Tile::~Tile(){}
 //    [2]
 //    [1][0]
 std::vector<std::vector<Face*>> LTile::possibleTile(std::vector<Face*>& quads)const {
+	/*std::vector<std::vector<bool>> box = initialize_vector1();
+	box[0][0] = true;
+	box[1][0] = true;
+	box[2][0] = true;
+	box[2][1] = true;*/
 	std::vector<std::vector<Face*>> result;
 	for (auto quad : quads) {
 		std::vector<HalfEdge*> halfEdges = quad->getHalfEdges();
 		for (auto halfEdge : halfEdges) {
 			std::vector<Face*> possibleTile;
+			
+			//test new algorithm
+			bool empty = false;
+			//iterate the customized tile in the box;
+			for (int i = 0; i < box.size(); i++) {
+
+				for (int j = 0; j < box.size(); j++) {
+					HalfEdge* bot = halfEdge->getNextHalfEdge()->getNextHalfEdge()->getNextHalfEdge();
+					if (box[i][j] == false) {
+						continue;
+					}
+					for (int r = 0; r < i; r++) {
+						bot = bot->getSymHalfEdge();
+						bot = bot->getNextHalfEdge()->getNextHalfEdge();
+						if (bot->getFace() == nullptr) {
+							empty = true;
+							break;
+						}
+					}
+					if (empty) {
+						break;
+					}
+					for (int c = 0; c < j; c++) {
+						bot = bot->getNextHalfEdge()->getSymHalfEdge();
+						if (bot->getFace() == nullptr) {
+							empty = true;
+							break;
+						}
+						bot = bot->getNextHalfEdge();
+					}
+					if (empty) {
+						break;
+					}
+					Face* possibleface = bot->getFace();
+					if (hasTiled(possibleface, possibleTile)) {
+						empty = true;
+						break;
+					}
+					else {
+						possibleTile.push_back(possibleface);
+					}
+				}
+				if (empty) {
+					break;
+				}
+			}
+			if (empty)continue;
+			/*
 			//0
 			possibleTile.push_back(quad);
 			HalfEdge* sym = halfEdge->getSymHalfEdge();
@@ -39,7 +159,7 @@ std::vector<std::vector<Face*>> LTile::possibleTile(std::vector<Face*>& quads)co
 			if (nextQuad == nullptr || sym == nullptr)continue;
 			//3
 			if (hasTiled(nextQuad, possibleTile))continue;
-			possibleTile.push_back(nextQuad);
+			possibleTile.push_back(nextQuad);*/
 
 			result.push_back(possibleTile);
 		}
@@ -205,7 +325,7 @@ std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quad
 	//for each fk in M, sum(T) should be 1;
 	for (int i = 0;i < quads.size();i++) {
 		get_row(lp, 1, rowVal);
-		add_constraint(lp, rowVal, LE, 1);
+		add_constraint(lp, rowVal, EQ, 1);
 		del_constraint(lp, 1);
 	}
 	//for each tile in M, each tile should not exceed max occurance

@@ -6,6 +6,7 @@
 #pragma comment(lib, "lp_solve/lpsolve55.lib")
 class Tile {
 public:
+    std::vector<std::vector<bool>> box;
 	float weight;
     int maxOccurence=-1;
     Tile(float w):weight(w){};

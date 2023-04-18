@@ -173,7 +173,9 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		}
 	}
 	myfile.close();
-		MFnMesh mesh(oponentList.asMesh());
+	
+
+	MFnMesh mesh(oponentList.asMesh());
 	MGlobal::displayInfo("numVertices: " + mesh.numVertices());
 	MGlobal::displayInfo("numEdges: " + mesh.numEdges());
 	MGlobal::displayInfo("numPolygons: " + mesh.numPolygons());
@@ -272,12 +274,17 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		McheckErr(returnStatus, "Error getting geometry data handle\n");
 
 		std::vector<Tile*> tiles;
+		for (int i = 0; i < all_tiles.size(); i++) {
+			LTile* t = new LTile();
+			t->box = all_tiles.at(i);
+			tiles.push_back(t);
+		}
 		I2Tile tile1;
 		I3Tile tile2;
 		LTile tile3;
 		SquareTile tile4;
 
-		if (maxOccur1 != 0) {
+		/*if (maxOccur1 != 0) {
 			tile1.maxOccurence = maxOccur1;
 			tile1.weight = w1;
 			tiles.push_back(&tile1);
@@ -296,7 +303,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			tile4.maxOccurence = maxOccur4;
 			tile4.weight = w4;
 			tiles.push_back(&tile4);
-		}
+		}*/
 
 		TileSolver solver;
 		std::vector<Face*> quad;
