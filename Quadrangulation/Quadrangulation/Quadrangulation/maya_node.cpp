@@ -25,6 +25,8 @@
 //MObject MayaNode::radius;
 //MObject MayaNode::time;
 //MObject MayaNode::vertex_num;
+bool attri = true;
+
 MTypeId MayaNode::id(0x80000);
 
 MObject MayaNode::inputFile;
@@ -174,6 +176,18 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	}
 	myfile.close();
 	
+	//add weight based on the input
+	/*if (attri) {
+		MFnNumericAttribute sizeAttr;
+		MObject testing =  sizeAttr.create("test", "test_1", MFnNumericData::kInt, -1, &returnStatus);
+		McheckErr(returnStatus, "Error creating testing attribte\n");
+		returnStatus = addAttribute(testing);
+		McheckErr(returnStatus, "Error adding testing attribute");
+		returnStatus = attributeAffects(testing, MayaNode::outputGeometry);
+		McheckErr(returnStatus, "Error testing attributeAffect");
+		MGlobal::displayInfo("Im in the if statement where i will add a new attribute\n");
+		attri = false;
+	}*/
 
 	MFnMesh mesh(oponentList.asMesh());
 	MGlobal::displayInfo("numVertices: " + mesh.numVertices());

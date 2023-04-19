@@ -35,6 +35,7 @@ public:
 	//static MObject radius;
 	//static MObject time;
 	//static MObject vertex_num;
+	static std::vector<MObject> occur;
 	static MTypeId id;
 	
 	static MObject maxOccurency1;
