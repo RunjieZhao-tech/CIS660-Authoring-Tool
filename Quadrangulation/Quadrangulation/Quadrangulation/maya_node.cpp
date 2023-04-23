@@ -30,6 +30,7 @@ bool attri = true;
 MTypeId MayaNode::id(0x80000);
 
 MObject MayaNode::inputFile;
+MObject MayaNode::tileSideLen;
 MObject MayaNode::maxOccurency1;
 MObject MayaNode::maxOccurency2;
 MObject MayaNode::maxOccurency3;
@@ -125,124 +126,123 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 	if (plug == outputGeometry) {
 		MDataHandle oponentList = data.inputValue(inputGeometry, &returnStatus);
 		McheckErr(returnStatus, "Error getting geometry data handle\n");
-			//handle the input file location
-	MDataHandle fileHandle = data.inputValue(inputFile,&returnStatus);
-	McheckErr(returnStatus, "Error getting file position handle\n");
-	MString filelocation = fileHandle.asString();
-	MGlobal::displayInfo("file location: " + filelocation);
-	std::ifstream myfile(filelocation.asChar());
-	
-	//initialize all the tiles
-	std::vector<std::vector<std::vector<bool>>> all_tiles;
-	
-	//allow the program to read files
-	if (myfile.is_open()) {
-		std::string mystring;
-		//read each row in each while loop
-		while (myfile.good()) {
-			myfile >> mystring;
-			std::vector<std::vector<bool>> tile = initialize_vector();
-			//iterate through each row to get the quads face
-			int row_num = 0;
-			int col_num = 0;
-			for (int i = 0; i < mystring.length(); i++) {
-				if (mystring[i] == '/') {
-					row_num++;
-					col_num = 0;
-					continue;
-				}
-				if (mystring[i] == 'F') {
-					tile[row_num][col_num] = true;
-					col_num++;
-				}
-			}
-			all_tiles.push_back(tile);
-			MGlobal::displayInfo(mystring.c_str());
-		}
+		//handle the input file location
+		MDataHandle fileHandle = data.inputValue(inputFile, &returnStatus);
+		McheckErr(returnStatus, "Error getting file position handle\n");
+		MString filelocation = fileHandle.asString();
+		MGlobal::displayInfo("file location: " + filelocation);
+		std::ifstream myfile(filelocation.asChar());
 
-		//iterate through all tiles
-		//used for testing
-		for (int i = 0; i < all_tiles.size(); i++) {
-			for (int j = 0; j < all_tiles.at(i).size(); j++) {
-				for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
-					if (all_tiles[i][j][k]) {
-						MGlobal::displayInfo("True");
+		//initialize all the tiles
+		std::vector<std::vector<std::vector<bool>>> all_tiles;
+
+		//allow the program to read files
+		if (myfile.is_open()) {
+			std::string mystring;
+			//read each row in each while loop
+			while (myfile.good()) {
+				myfile >> mystring;
+				std::vector<std::vector<bool>> tile = initialize_vector();
+				//iterate through each row to get the quads face
+				int row_num = 0;
+				int col_num = 0;
+				for (int i = 0; i < mystring.length(); i++) {
+					if (mystring[i] == '/') {
+						row_num++;
+						col_num = 0;
+						continue;
 					}
-					else {
-						MGlobal::displayInfo("False");
+					if (mystring[i] == 'F') {
+						tile[row_num][col_num] = true;
+						col_num++;
 					}
 				}
+				all_tiles.push_back(tile);
+				MGlobal::displayInfo(mystring.c_str());
+			}
+
+			//iterate through all tiles
+			//used for testing
+			for (int i = 0; i < all_tiles.size(); i++) {
+				for (int j = 0; j < all_tiles.at(i).size(); j++) {
+					for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
+						if (all_tiles[i][j][k]) {
+							MGlobal::displayInfo("True");
+						}
+						else {
+							MGlobal::displayInfo("False");
+						}
+					}
+				}
 			}
 		}
-	}
-	myfile.close();
-	
-	//add weight based on the input
-	/*if (attri) {
-		MFnNumericAttribute sizeAttr;
-		MObject testing =  sizeAttr.create("test", "test_1", MFnNumericData::kInt, -1, &returnStatus);
-		McheckErr(returnStatus, "Error creating testing attribte\n");
-		returnStatus = addAttribute(testing);
-		McheckErr(returnStatus, "Error adding testing attribute");
-		returnStatus = attributeAffects(testing, MayaNode::outputGeometry);
-		McheckErr(returnStatus, "Error testing attributeAffect");
-		MGlobal::displayInfo("Im in the if statement where i will add a new attribute\n");
-		attri = false;
-	}*/
+		myfile.close();
 
-	MFnMesh mesh(oponentList.asMesh());
-	MGlobal::displayInfo("numVertices: " + mesh.numVertices());
-	MGlobal::displayInfo("numEdges: " + mesh.numEdges());
-	MGlobal::displayInfo("numPolygons: " + mesh.numPolygons());
-	MGlobal::displayInfo("numFaceVertices: " + mesh.numFaceVertices());
+		//add weight based on the input
+		/*if (attri) {
+			MFnNumericAttribute sizeAttr;
+			MObject testing =  sizeAttr.create("test", "test_1", MFnNumericData::kInt, -1, &returnStatus);
+			McheckErr(returnStatus, "Error creating testing attribte\n");
+			returnStatus = addAttribute(testing);
+			McheckErr(returnStatus, "Error adding testing attribute");
+			returnStatus = attributeAffects(testing, MayaNode::outputGeometry);
+			McheckErr(returnStatus, "Error testing attributeAffect");
+			MGlobal::displayInfo("Im in the if statement where i will add a new attribute\n");
+			attri = false;
+		}*/
+
+		MFnMesh mesh(oponentList.asMesh());
 		MFloatPointArray pts = MFloatPointArray();
 		MIntArray vertexCount = MIntArray();
 		MIntArray vertexList = MIntArray();
 		mesh.getPoints(pts);
-		int count = 0;
-		for (auto pt : pts) {
-			count++;
-			std::string str = "getPoints: " + std::to_string(pt.x) + ", " + std::to_string(pt.y) + ", " + std::to_string(pt.z) + ", " + std::to_string(pt.w);
-			MGlobal::displayInfo(MString(str.c_str()));
-		}
-		std::string countStr = std::to_string(count);
-		MGlobal::displayInfo(countStr.c_str());
-		count = 0;
-
 		mesh.getVertices(vertexCount, vertexList);
-		MGlobal::displayInfo(MString("getVertices"));
-		for (auto vc : vertexCount) {
-			count++;
-			std::string str = "vertexCount: " + std::to_string(vc);
-			MGlobal::displayInfo(MString(str.c_str()));
-		}
-		countStr = std::to_string(count);
-		MGlobal::displayInfo(countStr.c_str());
-		count = 0;
-
-		for (auto vc : vertexList) {
-			count++;
-			std::string str = "vertexList: " + std::to_string(vc);
-			MGlobal::displayInfo(MString(str.c_str()));
-		}
-		countStr = std::to_string(count);
-		MGlobal::displayInfo(countStr.c_str());
-		count = 0;
-
-		MGlobal::displayInfo(MString("getPolygonVertices"));
-		for (int i = 0;i < mesh.numPolygons();i++) {
-			MIntArray vertexListf = MIntArray();
-			mesh.getPolygonVertices(i, vertexListf);
-			std::string str = "Face " + std::to_string(i) + ": ";
-			for (auto v : vertexListf) {
-				str += (std::to_string(v) + " ");
-			}
-			MGlobal::displayInfo(MString(str.c_str()));
-		}
+		//int count = 0;
+		//MGlobal::displayInfo("numVertices: " + mesh.numVertices());
+		//MGlobal::displayInfo("numEdges: " + mesh.numEdges());
+		//MGlobal::displayInfo("numPolygons: " + mesh.numPolygons());
+		//MGlobal::displayInfo("numFaceVertices: " + mesh.numFaceVertices());
+		//for (auto pt : pts) {
+		//	count++;
+		//	std::string str = "getPoints: " + std::to_string(pt.x) + ", " + std::to_string(pt.y) + ", " + std::to_string(pt.z) + ", " + std::to_string(pt.w);
+		//	MGlobal::displayInfo(MString(str.c_str()));
+		//}
+		//std::string countStr = std::to_string(count);
+		//MGlobal::displayInfo(countStr.c_str());
+		//count = 0;
+		// 
+		//MGlobal::displayInfo(MString("getVertices"));
+		//for (auto vc : vertexCount) {
+		//	count++;
+		//	std::string str = "vertexCount: " + std::to_string(vc);
+		//	MGlobal::displayInfo(MString(str.c_str()));
+		//}
+		//countStr = std::to_string(count);
+		//MGlobal::displayInfo(countStr.c_str());
+		//count = 0;
+		// 
+		//for (auto vc : vertexList) {
+		//	count++;
+		//	std::string str = "vertexList: " + std::to_string(vc);
+		//	MGlobal::displayInfo(MString(str.c_str()));
+		//}
+		//countStr = std::to_string(count);
+		//MGlobal::displayInfo(countStr.c_str());
+		//count = 0;
+		//MGlobal::displayInfo(MString("getPolygonVertices"));
+		//for (int i = 0;i < mesh.numPolygons();i++) {
+		//	MIntArray vertexListf = MIntArray();
+		//	mesh.getPolygonVertices(i, vertexListf);
+		//	std::string str = "Face " + std::to_string(i) + ": ";
+		//	for (auto v : vertexListf) {
+		//		str += (std::to_string(v) + " ");
+		//	}
+		//	MGlobal::displayInfo(MString(str.c_str()));
+		//}
 
 		//max occurency
 		MDataHandle
-		maxOccurHandle = data.inputValue(maxOccurency1, &returnStatus);
+			maxOccurHandle = data.inputValue(maxOccurency1, &returnStatus);
 		McheckErr(returnStatus, "Error getting maxOccurency1 data handle\n");
 		int maxOccur1 = maxOccurHandle.asInt();
 		maxOccurHandle = data.inputValue(maxOccurency2, &returnStatus);
@@ -257,7 +257,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 
 		//weights
 		MDataHandle
-		weightHandle = data.inputValue(weight1, &returnStatus);
+			weightHandle = data.inputValue(weight1, &returnStatus);
 		McheckErr(returnStatus, "Error getting weight1 data handle\n");
 		float w1 = weightHandle.asFloat();
 
@@ -273,6 +273,12 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		McheckErr(returnStatus, "Error getting weight4 data handle\n");
 		float w4 = weightHandle.asFloat();
 
+		//side length
+		MDataHandle
+			sideHandle = data.inputValue(tileSideLen, &returnStatus);
+		McheckErr(returnStatus, "Error getting side length data handle\n");
+		float sideLen = std::max(sideHandle.asFloat(),0.02f);
+
 		//construct patch
 		MIntArray vertexListf = MIntArray();
 		mesh.getPolygonVertices(0, vertexListf);
@@ -281,7 +287,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			verts.push_back(glm::vec3(pts[id].x, pts[id].y, pts[id].z));
 		}
 		Patch patch(verts);
-		patch.quadrangulate();
+		patch.quadrangulate(sideLen);
 		MFnMeshData meshData;
 		MObject newOutputGeom = meshData.create(&returnStatus);
 		McheckErr(returnStatus, "Error creating geometry data\n");
@@ -348,21 +354,21 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		}
 
 		//add tile display geometry into the maya
-		
+
 		for (int i = 0; i < all_tiles.size(); i++) {
 			//each tile
-			glm::vec3 origin(5,i,0);
+			glm::vec3 origin(5, i, 0);
 			for (int j = 0; j < all_tiles.at(i).size(); j++) {
 				for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
 					if (all_tiles[i][j][k]) {
 						//create a face
 						int face_num = 4;
-						glm::vec3 topleft = origin + glm::vec3(k,0,j);
-						glm::vec3 topright = topleft + glm::vec3(1,0,0);
+						glm::vec3 topleft = origin + glm::vec3(k, 0, j);
+						glm::vec3 topright = topleft + glm::vec3(1, 0, 0);
 						glm::vec3 botleft = topleft + glm::vec3(0, 0, 1);
-						glm::vec3 botright = topleft + glm::vec3(1,0,1);
+						glm::vec3 botright = topleft + glm::vec3(1, 0, 1);
 						faceCounts.append(face_num);
-						mPos.append(MPoint(topleft.x,topleft.y,topleft.z));
+						mPos.append(MPoint(topleft.x, topleft.y, topleft.z));
 						mPos.append(MPoint(topright.x, topright.y, topright.z));
 						mPos.append(MPoint(botright.x, botright.y, botright.z));
 						mPos.append(MPoint(botleft.x, botleft.y, botleft.z));
@@ -455,6 +461,8 @@ MStatus MayaNode::initialize() {
 	MayaNode::weight4 = weightAttr.create("weight_4", "w_4", MFnNumericData::kFloat, 0.f, &returnStatus);
 	McheckErr(returnStatus, "Error creating node weight_4 attribute\n");
 
+	MayaNode::tileSideLen = weightAttr.create("tile_length", "tile_len", MFnNumericData::kFloat, 0.2f, &returnStatus);
+	McheckErr(returnStatus, "Error creating node tile_length attribute\n");
 	MayaNode::inputGeometry = geomAttr.create("input_geometry", "i_geom", MFnData::kMesh, MObject::kNullObj, &returnStatus);
 	McheckErr(returnStatus, "Error creating input_geometry attribute\n");
 	MayaNode::outputGeometry = geomAttr.create("output_geometry", "o_geom", MFnData::kMesh, MObject::kNullObj, &returnStatus);
@@ -482,15 +490,32 @@ MStatus MayaNode::initialize() {
 	returnStatus = addAttribute(MayaNode::weight4);
 	McheckErr(returnStatus, "Error adding weight_4 attribute");
 
+	returnStatus = addAttribute(MayaNode::tileSideLen);
+	McheckErr(returnStatus, "Error adding tile_length attribute");
 	returnStatus = addAttribute(MayaNode::inputGeometry);
 	McheckErr(returnStatus, "Error adding input geometry attribute");
+	if (returnStatus == MS::kSuccess) {
+		MFnAttribute myAttrFn(MayaNode::inputGeometry, &returnStatus);
+		if (returnStatus == MS::kSuccess) {
+			myAttrFn.setHidden(true);
+		}
+	}
 	returnStatus = addAttribute(MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding output geometry attribute");
+	if (returnStatus == MS::kSuccess) {
+		MFnAttribute myAttrFn(MayaNode::outputGeometry, &returnStatus);
+		if (returnStatus == MS::kSuccess) {
+			myAttrFn.setHidden(true);
+		}
+	}
 
 	//attributes affect
 	//input file position
+	//returnStatus = attributeAffects(MayaNode::inputGeometry, MayaNode::outputGeometry);
+	//McheckErr(returnStatus, "Error adding input position attributeAffect")
+
 	returnStatus = attributeAffects(MayaNode::inputFile, MayaNode::outputGeometry);
-	McheckErr(returnStatus, "Error adding input position attributeAffect");
+	McheckErr(returnStatus, "Error adding input file attributeAffect");
 	returnStatus = attributeAffects(MayaNode::maxOccurency1, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding max_occurency_1 attributeAffect");
 	returnStatus = attributeAffects(MayaNode::maxOccurency2, MayaNode::outputGeometry);
@@ -508,6 +533,9 @@ MStatus MayaNode::initialize() {
 	McheckErr(returnStatus, "Error adding weight_3 attributeAffect");
 	returnStatus = attributeAffects(MayaNode::weight4, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding weight_4 attributeAffect");
+
+	returnStatus = attributeAffects(MayaNode::tileSideLen, MayaNode::outputGeometry);
+	McheckErr(returnStatus, "Error adding tileSideLen attributeAffect");
 
 	return MS::kSuccess;
 }
