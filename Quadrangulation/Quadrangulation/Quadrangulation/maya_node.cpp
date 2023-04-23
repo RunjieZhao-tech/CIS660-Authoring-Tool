@@ -40,6 +40,7 @@ MObject MayaNode::weight3;
 MObject MayaNode::weight4;
 MObject MayaNode::inputGeometry;
 MObject MayaNode::outputGeometry;
+MObject MayaNode::tile_display;
 //Helper Function
 std::vector<std::vector<bool>> initialize_vector() {
 	std::vector<bool> row(5,false);
@@ -346,6 +347,39 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			}
 		}
 
+		//add tile display geometry into the maya
+		
+		for (int i = 0; i < all_tiles.size(); i++) {
+			//each tile
+			glm::vec3 origin(5,i,0);
+			for (int j = 0; j < all_tiles.at(i).size(); j++) {
+				for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
+					if (all_tiles[i][j][k]) {
+						//create a face
+						int face_num = 4;
+						glm::vec3 topleft = origin + glm::vec3(k,0,j);
+						glm::vec3 topright = topleft + glm::vec3(1,0,0);
+						glm::vec3 botleft = topleft + glm::vec3(0, 0, 1);
+						glm::vec3 botright = topleft + glm::vec3(1,0,1);
+						faceCounts.append(face_num);
+						mPos.append(MPoint(topleft.x,topleft.y,topleft.z));
+						mPos.append(MPoint(topright.x, topright.y, topright.z));
+						mPos.append(MPoint(botright.x, botright.y, botright.z));
+						mPos.append(MPoint(botleft.x, botleft.y, botleft.z));
+						int size = mPos.length();
+						faceConnects.append(size - 1);
+						faceConnects.append(size - 2);
+						faceConnects.append(size - 3);
+						faceConnects.append(size - 4);
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+
+
 		//mesh manipulation
 		MFnMeshData dataCreator;
 		MObject newOutputData = dataCreator.create(&returnStatus);
@@ -354,6 +388,19 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		meshFS.create(mPos.length(), faceCounts.length(), mPos, faceCounts, faceConnects, newOutputData, &returnStatus);
 		McheckErr(returnStatus, "ERROR: creating new geometry");
 
+		//
+		for (int i = 0; i < mPos.length();i++) {
+			std::string str = "point " + std::to_string(i) + ": " + std::to_string(mPos[i][0]) + " " + std::to_string(mPos[i][1]) + " " + std::to_string(mPos[i][2]);
+			MGlobal::displayInfo(str.c_str());
+		}
+		for (int i = 0; i < faceCounts.length(); i++) {
+			std::string str = "facecount " + std::to_string(i) + ": " + std::to_string(faceCounts[i]);
+			MGlobal::displayInfo(str.c_str());
+		}
+		for (int i = 0; i < faceConnects.length(); i++) {
+			std::string str = "faceconnect " + std::to_string(i) + ": " + std::to_string(faceConnects[i]);
+			MGlobal::displayInfo(str.c_str());
+		}
 		//output handle
 		MDataHandle outGeomHandle = data.outputValue(outputGeometry, &returnStatus);
 		McheckErr(returnStatus, "ERROR: geometry data handle\n");

@@ -51,6 +51,7 @@ public:
 	static MObject inputFile;
 	static MObject inputGeometry;
 	static MObject outputGeometry;
+	static MObject tile_display;
 
 
 	static std::vector<Vertex*> buildPolygon(std::vector<Face*>& Tile);
