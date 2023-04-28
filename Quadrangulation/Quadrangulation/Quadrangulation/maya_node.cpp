@@ -385,7 +385,16 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		MObject newOutputData = dataCreator.create(&returnStatus);
 		McheckErr(returnStatus, "ERROR: creating output data\n");
 		MFnMesh meshFS;
+		
 		meshFS.create(mPos.length(), faceCounts.length(), mPos, faceCounts, faceConnects, newOutputData, &returnStatus);
+		/*MColor col(1, 0, 0);
+		if (faceCounts.length() > 0) { 
+			meshFS.setFaceColor(col, 0);
+			meshFS.setFaceColor(col, 1);
+			meshFS.setFaceColor(col, 2);
+			meshFS.setFaceColor(col, 3);
+		}*/
+		//newOutputData = meshFS.generateSmoothMesh(newOutputData,nullptr,&returnStatus);
 		McheckErr(returnStatus, "ERROR: creating new geometry");
 
 		//
