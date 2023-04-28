@@ -263,7 +263,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 
 		for (int i = 0; i < all_tiles.size(); i++) {
 			//each tile
-			glm::vec3 origin(5, i, 0);
+			glm::vec3 origin(5, 0, (i+1)*5);
 			for (int j = 0; j < all_tiles.at(i).size(); j++) {
 				for (int k = 0; k < all_tiles.at(i).at(j).size(); k++) {
 					if (all_tiles[i][j][k]) {
