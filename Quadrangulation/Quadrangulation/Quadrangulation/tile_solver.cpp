@@ -1,5 +1,5 @@
 #include "tile_solver.h"
-
+#include <maya/MGlobal.h>
 //helper function
 std::vector<std::vector<bool>> initialize_vector1() {
 	std::vector<bool> row(5, false);
@@ -255,7 +255,7 @@ std::vector<std::vector<Face*>> I2Tile::possibleTile(std::vector<Face*>& quads)c
 
 TileSolver::TileSolver(){}
 
-std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quads, std::vector<Tile*>tiles)const {
+std::vector<std::vector<Face*>> TileSolver::solveTiling(std::vector<Face*>& quads, std::vector<Tile*>& tiles)const {
 	lprec* lp;
 
 	//build a map refer to all quads in a patch

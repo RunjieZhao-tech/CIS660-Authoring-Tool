@@ -93,6 +93,7 @@ public:
         HalfEdge* hEdge, Vertex* sV, Vertex* eV);
     
     void quadrangulate();
+    void quadrangulate(float sideLen);
     //this method will return new generated quad after division
     void subDivide(HalfEdge* edgeToDivide, int divideNum);
     //helper function to subdivide quad, 

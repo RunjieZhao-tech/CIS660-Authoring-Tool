@@ -52,5 +52,5 @@ public:
 class TileSolver {
 public:
     TileSolver();
-    std::vector<std::vector<Face*>> solveTiling(std::vector<Face*>& quads, std::vector<Tile*>tiles)const;
+    std::vector<std::vector<Face*>> solveTiling(std::vector<Face*>& quads, std::vector<Tile*>& tiles)const;
 };

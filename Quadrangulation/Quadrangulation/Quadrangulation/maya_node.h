@@ -38,21 +38,18 @@ public:
 	static std::vector<MObject> occur;
 	static MTypeId id;
 	
-	static MObject maxOccurency1;
-	static MObject maxOccurency2;
-	static MObject maxOccurency3;
-	static MObject maxOccurency4;
-
-	static MObject weight1;
-	static MObject weight2;
-	static MObject weight3;
-	static MObject weight4;
-
+	static MObject myListAttr;
 	static MObject inputFile;
+	static MObject weight;
+	static MObject maxOccurency;
+	
+	static MObject tileSideLen;
+	
 	static MObject inputGeometry;
 	static MObject outputGeometry;
 	static MObject tile_display;
 
+	
 
 	static std::vector<Vertex*> buildPolygon(std::vector<Face*>& Tile);
 	static HalfEdge* findNextBoundary(HalfEdge* currentEdge, const std::unordered_set<Face*>& tile);
