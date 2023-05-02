@@ -49,6 +49,7 @@ public:
 	static MObject outputGeometry;
 	static MObject tile_display;
 
+	static MObject droplist;
 	
 
 	static std::vector<Vertex*> buildPolygon(std::vector<Face*>& Tile);

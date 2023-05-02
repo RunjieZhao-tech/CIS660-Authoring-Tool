@@ -42,6 +42,8 @@ MObject MayaNode::inputGeometry;
 MObject MayaNode::outputGeometry;
 MObject MayaNode::tile_display;
 
+MObject MayaNode::droplist;
+
 //Helper Function
 std::vector<std::vector<bool>> initialize_vector() {
 	std::vector<bool> row(5,false);
@@ -333,6 +335,12 @@ MStatus MayaNode::initialize() {
 
 	MStatus status;
 	MFnCompoundAttribute typedAttr;
+	MFnEnumAttribute dropdown;
+	
+	MayaNode::droplist = dropdown.create("dropdown","drop");
+	dropdown.addField("Field 1",0);
+	addAttribute(droplist);
+
 	MayaNode::myListAttr = typedAttr.create("TileAttr", "mla", &returnStatus);
 
 	//set input file location
@@ -353,6 +361,9 @@ MStatus MayaNode::initialize() {
 	MayaNode::weight = numericAttr.create("Weight", "w_1", MFnNumericData::kFloat, 0.f, &returnStatus);
 	McheckErr(returnStatus, "Error creating node weight_1 attribute\n");
 	typedAttr.addChild(weight);
+
+	//test
+	typedAttr.addChild(droplist);
 
 	typedAttr.setArray(true);
 	typedAttr.setUsesArrayDataBuilder(true);
