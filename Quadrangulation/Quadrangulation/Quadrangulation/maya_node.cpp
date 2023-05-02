@@ -293,6 +293,10 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			}
 		}
 
+		//test
+		int enumValue = data.inputValue(droplist,&returnStatus).asInt();
+		std::string val = "value is: "+std::to_string(enumValue);
+		MGlobal::displayInfo(val.c_str());
 
 		//mesh manipulation
 		MFnMeshData dataCreator;
@@ -339,6 +343,7 @@ MStatus MayaNode::initialize() {
 	
 	MayaNode::droplist = dropdown.create("dropdown","drop");
 	dropdown.addField("Field 1",0);
+	dropdown.addField("Filed 2",1);
 	addAttribute(droplist);
 
 	MayaNode::myListAttr = typedAttr.create("TileAttr", "mla", &returnStatus);
