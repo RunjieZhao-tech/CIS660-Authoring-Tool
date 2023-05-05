@@ -44,6 +44,8 @@ MObject MayaNode::tile_display;
 
 MObject MayaNode::dropList;
 
+std::vector<std::vector<std::vector<bool>>> tiles_storage;
+
 //Helper Function
 std::vector<std::vector<bool>> initialize_vector() {
 	std::vector<bool> row(5,false);
@@ -51,12 +53,46 @@ std::vector<std::vector<bool>> initialize_vector() {
 	return res;
 }
 
+//the function return the path of the file
 std::vector<std::string> tileFactory() {
 	std::vector<std::string> v;
-	std::string folder = "E:\\GitStorage\\CIS6600\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
+	//std::string folder = "E:\\GitStorage\\CIS6600\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
+	std::string folder = "D:\\Study\\CIS660\\AuthoringTool\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
 	v.push_back(folder + "read.txt");
-	v.push_back(folder + "read2.txt");
-	return v;
+	std::vector<std::string> names;
+	std::ifstream myfile(v.at(0));
+	if (myfile.is_open()) {
+		MGlobal::displayInfo("File is opened in the tileFactory");
+		std::string mystring;
+		while (myfile.good()) {
+			myfile >> mystring;
+			std::vector<std::vector<bool>> tile = initialize_vector();
+			//iterate through each row to get the quads face
+			int row_num = 0;
+			int col_num = 0;
+			for (int i = 0; i < mystring.length(); i++) {
+				if (mystring[i] == '/') {
+					row_num++;
+					col_num = 0;
+					continue;
+				}
+				if (mystring[i] == 'F') {
+					tile[row_num][col_num] = true;
+					col_num++;
+				}
+			}
+			tiles_storage.push_back(tile);
+			MGlobal::displayInfo(mystring.c_str());
+		}
+		for (int i = 0; i < tiles_storage.size(); i++) {
+			names.push_back("tile " + std::to_string(i+1));
+		}
+	}
+	else {
+		MGlobal::displayInfo("Wrong path");	
+		return std::vector<std::string>();
+	}
+	return names;
 }
 
 std::string generateKey(const std::string& path) {
@@ -159,19 +195,19 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			MDataHandle elementHandle = arrayHandle.inputValue(&returnStatus);
 
 			// Get the child handles for the string and number attributes
-			MDataHandle pathHandle = elementHandle.child(inputFile);
+			//MDataHandle pathHandle = elementHandle.child(inputFile);
 			MDataHandle weightHandle = elementHandle.child(weight);
 			MDataHandle maxOccurHandle = elementHandle.child(maxOccurency);
 			MDataHandle tileListHandle = elementHandle.child(dropList);
 		
 			//allow the program to read files
-			MString filelocation = pathHandle.asString();
-			std::ifstream myfile(filelocation.asChar());
+			//MString filelocation = pathHandle.asString();
+			std::ifstream myfile("filelocation.asChar()");
 			if (myfile.is_open()) {
 				std::string mystring;
 				MGlobal::displayInfo(MString("Open with file path: "));
 				//read each row in each while loop
-				//while (myfile.good()) {
+				while (myfile.good()) {
 					myfile >> mystring;
 					std::vector<std::vector<bool>> tile = initialize_vector();
 					//iterate through each row to get the quads face
@@ -190,7 +226,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 					}
 					all_tiles.push_back(tile);
 					MGlobal::displayInfo(mystring.c_str());
-				//}
+				}
 				
 				//we update weight and max occurency for each tile
 				std::string str = "weight: " + std::to_string(weightHandle.asFloat());
@@ -206,29 +242,30 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 				myfile.close();
 				MGlobal::displayInfo(MString("Open with predefined tile: "));
 				int enumValue = tileListHandle.asInt();
-				myfile.open(allTile[enumValue].c_str());
+				/*myfile.open(allTile[enumValue].c_str());
 				if (myfile.is_open()) {
 					std::string mystring;
 					//read each row in each while loop
-					myfile >> mystring;
-					std::vector<std::vector<bool>> tile = initialize_vector();
-					//iterate through each row to get the quads face
-					int row_num = 0;
-					int col_num = 0;
-					for (int i = 0; i < mystring.length(); i++) {
-						if (mystring[i] == '/') {
-							row_num++;
-							col_num = 0;
-							continue;
+					while (myfile.good()) {
+						myfile >> mystring;
+						std::vector<std::vector<bool>> tile = initialize_vector();
+						//iterate through each row to get the quads face
+						int row_num = 0;
+						int col_num = 0;
+						for (int i = 0; i < mystring.length(); i++) {
+							if (mystring[i] == '/') {
+								row_num++;
+								col_num = 0;
+								continue;
+							}
+							if (mystring[i] == 'F') {
+								tile[row_num][col_num] = true;
+								col_num++;
+							}
 						}
-						if (mystring[i] == 'F') {
-							tile[row_num][col_num] = true;
-							col_num++;
-						}
+						all_tiles.push_back(tile);
+						MGlobal::displayInfo(mystring.c_str());
 					}
-					all_tiles.push_back(tile);
-					MGlobal::displayInfo(mystring.c_str());
-
 					//we update weight and max occurency for each tile
 					std::string str = "weight: " + std::to_string(weightHandle.asFloat());
 					MGlobal::displayInfo(MString(str.c_str()));
@@ -240,9 +277,19 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 				else {
 					std::string str = "open file failed at: " + i;
 					MGlobal::displayInfo(MString(str.c_str()));
+				}*/
+				if (tiles_storage.size() > 0) {
+					all_tiles.push_back(tiles_storage.at(enumValue));
+					std::string str = "weight: " + std::to_string(weightHandle.asFloat());
+					MGlobal::displayInfo(MString(str.c_str()));
+					str = "max occurency: " + std::to_string(maxOccurHandle.asInt());
+					MGlobal::displayInfo(MString(str.c_str()));
+					weights.push_back(weightHandle.asFloat());
+					maxOccurs.push_back(maxOccurHandle.asInt());
 				}
+				
 			}
-			myfile.close();
+			//myfile.close();
 			// Move to the next element in the array
 			arrayHandle.next();
 		}
@@ -412,16 +459,16 @@ MStatus MayaNode::initialize() {
 	typedAttr.addChild(dropList);
 
 	//test
-	typedAttr.addChild(dropList);
+	//typedAttr.addChild(dropList);
 
 	typedAttr.setArray(true);
 	typedAttr.setUsesArrayDataBuilder(true);
 
 	//set input file location
-	MFnTypedAttribute stringAttr;
+	/*MFnTypedAttribute stringAttr;
 	MayaNode::inputFile = stringAttr.create("InputFile", "inputfile", MFnData::kString, MObject::kNullObj, &returnStatus);
 	McheckErr(returnStatus, "Error creating input file attribte\n");
-	typedAttr.addChild(inputFile);
+	typedAttr.addChild(inputFile);*/
 
 	MFnNumericAttribute numericAttr;
 	//set occurrencies
