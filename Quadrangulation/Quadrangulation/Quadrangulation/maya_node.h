@@ -49,8 +49,8 @@ public:
 	static MObject outputGeometry;
 	static MObject tile_display;
 
-	static MObject droplist;
-	
+	static MObject dropList;
+	static std::vector<std::string> allTile;
 
 	static std::vector<Vertex*> buildPolygon(std::vector<Face*>& Tile);
 	static HalfEdge* findNextBoundary(HalfEdge* currentEdge, const std::unordered_set<Face*>& tile);

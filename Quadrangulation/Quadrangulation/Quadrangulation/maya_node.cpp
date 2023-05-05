@@ -42,7 +42,7 @@ MObject MayaNode::inputGeometry;
 MObject MayaNode::outputGeometry;
 MObject MayaNode::tile_display;
 
-MObject MayaNode::droplist;
+MObject MayaNode::dropList;
 
 //Helper Function
 std::vector<std::vector<bool>> initialize_vector() {
@@ -50,6 +50,24 @@ std::vector<std::vector<bool>> initialize_vector() {
 	std::vector<std::vector<bool>> res(5,row);
 	return res;
 }
+
+std::vector<std::string> tileFactory() {
+	std::vector<std::string> v;
+	std::string folder = "E:\\GitStorage\\CIS6600\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
+	v.push_back(folder + "read.txt");
+	v.push_back(folder + "read2.txt");
+	return v;
+}
+
+std::string generateKey(const std::string& path) {
+	std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
+	std::string::size_type const p(base_filename.find_last_of('.'));
+	std::string file_without_extension = base_filename.substr(0, p);
+	return file_without_extension;
+}
+
+std::vector<std::string> MayaNode::allTile = tileFactory();
+
 
 //has tiled function
 bool hasTiled(const Face* QuadWantTile, const std::vector<Face*>& tiledFace) {
@@ -144,12 +162,14 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			MDataHandle pathHandle = elementHandle.child(inputFile);
 			MDataHandle weightHandle = elementHandle.child(weight);
 			MDataHandle maxOccurHandle = elementHandle.child(maxOccurency);
-
+			MDataHandle tileListHandle = elementHandle.child(dropList);
+		
 			//allow the program to read files
 			MString filelocation = pathHandle.asString();
 			std::ifstream myfile(filelocation.asChar());
 			if (myfile.is_open()) {
 				std::string mystring;
+				MGlobal::displayInfo(MString("Open with file path: "));
 				//read each row in each while loop
 				//while (myfile.good()) {
 					myfile >> mystring;
@@ -183,6 +203,44 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			else {
 				std::string str = "open file failed at: " + i;
 				MGlobal::displayInfo(MString(str.c_str()));
+				myfile.close();
+				MGlobal::displayInfo(MString("Open with predefined tile: "));
+				int enumValue = tileListHandle.asInt();
+				myfile.open(allTile[enumValue].c_str());
+				if (myfile.is_open()) {
+					std::string mystring;
+					//read each row in each while loop
+					myfile >> mystring;
+					std::vector<std::vector<bool>> tile = initialize_vector();
+					//iterate through each row to get the quads face
+					int row_num = 0;
+					int col_num = 0;
+					for (int i = 0; i < mystring.length(); i++) {
+						if (mystring[i] == '/') {
+							row_num++;
+							col_num = 0;
+							continue;
+						}
+						if (mystring[i] == 'F') {
+							tile[row_num][col_num] = true;
+							col_num++;
+						}
+					}
+					all_tiles.push_back(tile);
+					MGlobal::displayInfo(mystring.c_str());
+
+					//we update weight and max occurency for each tile
+					std::string str = "weight: " + std::to_string(weightHandle.asFloat());
+					MGlobal::displayInfo(MString(str.c_str()));
+					str = "max occurency: " + std::to_string(maxOccurHandle.asInt());
+					MGlobal::displayInfo(MString(str.c_str()));
+					weights.push_back(weightHandle.asFloat());
+					maxOccurs.push_back(maxOccurHandle.asInt());
+				}
+				else {
+					std::string str = "open file failed at: " + i;
+					MGlobal::displayInfo(MString(str.c_str()));
+				}
 			}
 			myfile.close();
 			// Move to the next element in the array
@@ -294,7 +352,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		}
 
 		//test
-		int enumValue = data.inputValue(droplist,&returnStatus).asInt();
+		int enumValue = data.inputValue(dropList,&returnStatus).asInt();
 		std::string val = "value is: "+std::to_string(enumValue);
 		MGlobal::displayInfo(val.c_str());
 
@@ -340,21 +398,29 @@ MStatus MayaNode::initialize() {
 	MStatus status;
 	MFnCompoundAttribute typedAttr;
 	MFnEnumAttribute dropdown;
-	
-	MayaNode::droplist = dropdown.create("dropdown","drop");
-	dropdown.addField("Field 1",0);
-	dropdown.addField("Filed 2",1);
-	addAttribute(droplist);
 
+	//set attributes
 	MayaNode::myListAttr = typedAttr.create("TileAttr", "mla", &returnStatus);
+	MayaNode::dropList = dropdown.create("preDefinedTile", "drop");
+	for (int i = 0;i < allTile.size();i++) {
+		std::string key = generateKey(allTile[i]);
+		dropdown.addField(MString(key.c_str()), i);
+		std::string info = "initialize list: key: " + key + ", " + std::to_string(i);
+		MGlobal::displayInfo(info.c_str());
+	}
+	addAttribute(dropList);
+	typedAttr.addChild(dropList);
+
+	//test
+	typedAttr.addChild(dropList);
+
+	typedAttr.setArray(true);
+	typedAttr.setUsesArrayDataBuilder(true);
 
 	//set input file location
 	MFnTypedAttribute stringAttr;
 	MayaNode::inputFile = stringAttr.create("InputFile", "inputfile", MFnData::kString, MObject::kNullObj, &returnStatus);
 	McheckErr(returnStatus, "Error creating input file attribte\n");
-	//stringAttr.setStorable(true);
-	//stringAttr.setWritable(true);
-	//stringAttr.setReadable(true);
 	typedAttr.addChild(inputFile);
 
 	MFnNumericAttribute numericAttr;
@@ -362,17 +428,9 @@ MStatus MayaNode::initialize() {
 	MayaNode::maxOccurency = numericAttr.create("MaxOccurency", "max_occur_1", MFnNumericData::kInt, -1, &returnStatus);
 	McheckErr(returnStatus, "Error creating node max_occurency_1 attribute\n");
 	typedAttr.addChild(maxOccurency);
-
 	MayaNode::weight = numericAttr.create("Weight", "w_1", MFnNumericData::kFloat, 0.f, &returnStatus);
 	McheckErr(returnStatus, "Error creating node weight_1 attribute\n");
 	typedAttr.addChild(weight);
-
-	//test
-	typedAttr.addChild(droplist);
-
-	typedAttr.setArray(true);
-	typedAttr.setUsesArrayDataBuilder(true);
-	//set attributes
 
 	MayaNode::tileSideLen = weightAttr.create("tile_length", "tile_len", MFnNumericData::kFloat, 0.2f, &returnStatus);
 	McheckErr(returnStatus, "Error creating node tile_length attribute\n");
