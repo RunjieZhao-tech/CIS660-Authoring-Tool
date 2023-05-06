@@ -53,17 +53,14 @@ std::vector<std::vector<bool>> initialize_vector() {
 	return res;
 }
 
-//the function return the path of the file
-std::vector<std::string> tileFactory() {
-	std::vector<std::string> v;
-	//std::string folder = "E:\\GitStorage\\CIS6600\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
-	std::string folder = "D:\\Study\\CIS660\\AuthoringTool\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
-	v.push_back(folder + "read.txt");
-	std::vector<std::string> names;
-	std::ifstream myfile(v.at(0));
+//read tile from file, return read success
+bool loadTileFromFile(const char* path, std::vector<std::vector<std::vector<bool>>>& all_tiles) {
+	std::ifstream myfile(path);
+	bool result = false;
 	if (myfile.is_open()) {
-		MGlobal::displayInfo("File is opened in the tileFactory");
 		std::string mystring;
+		MGlobal::displayInfo(MString("Open with file path: "));
+		//read each row in each while loop
 		while (myfile.good()) {
 			myfile >> mystring;
 			std::vector<std::vector<bool>> tile = initialize_vector();
@@ -81,9 +78,36 @@ std::vector<std::string> tileFactory() {
 					col_num++;
 				}
 			}
-			tiles_storage.push_back(tile);
+			all_tiles.push_back(tile);
 			MGlobal::displayInfo(mystring.c_str());
 		}
+		result = true;
+	}
+	else {
+		std::string spath = path;
+		std::string str = "open file failed at: " + spath;
+		MGlobal::displayInfo(MString(str.c_str()));
+		result = false;
+	}
+	myfile.close();
+	return result;
+}
+bool loadTileFromFile(const std::string& path, std::vector<std::vector<std::vector<bool>>>& all_tiles) {
+	return loadTileFromFile(path.c_str(), all_tiles);
+}
+bool loadTileFromFile(const MString& path, std::vector<std::vector<std::vector<bool>>>& all_tiles) {
+	return loadTileFromFile(path.asChar(), all_tiles);
+}
+
+//the function return the path of the file
+std::vector<std::string> tileFactory() {
+	std::vector<std::string> v;
+	std::string folder = "E:\\GitStorage\\CIS6600\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
+	//std::string folder = "D:\\Study\\CIS660\\AuthoringTool\\CIS660-Authoring-Tool\\Quadrangulation\\Quadrangulation\\Quadrangulation\\tiles\\";
+	v.push_back(folder + "read.txt");
+	std::vector<std::string> names;
+	if (loadTileFromFile(v.at(0), tiles_storage)) {
+		MGlobal::displayInfo("File is opened in the tileFactory");
 		for (int i = 0; i < tiles_storage.size(); i++) {
 			names.push_back("tile " + std::to_string(i+1));
 		}
@@ -202,32 +226,8 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		
 			//allow the program to read files
 			MString filelocation = pathHandle.asString();
-			std::ifstream myfile(filelocation.asChar());
-			if (myfile.is_open()) {
-				std::string mystring;
-				MGlobal::displayInfo(MString("Open with file path: "));
-				//read each row in each while loop
-				while (myfile.good()) {
-					myfile >> mystring;
-					std::vector<std::vector<bool>> tile = initialize_vector();
-					//iterate through each row to get the quads face
-					int row_num = 0;
-					int col_num = 0;
-					for (int i = 0; i < mystring.length(); i++) {
-						if (mystring[i] == '/') {
-							row_num++;
-							col_num = 0;
-							continue;
-						}
-						if (mystring[i] == 'F') {
-							tile[row_num][col_num] = true;
-							col_num++;
-						}
-					}
-					all_tiles.push_back(tile);
-					MGlobal::displayInfo(mystring.c_str());
-				}
-				
+			//std::ifstream myfile(filelocation.asChar());
+			if (loadTileFromFile(filelocation,all_tiles)) {
 				//we update weight and max occurency for each tile
 				std::string str = "weight: " + std::to_string(weightHandle.asFloat());
 				MGlobal::displayInfo(MString(str.c_str()));
@@ -239,45 +239,8 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			else {
 				std::string str = "open file failed at: " + i;
 				MGlobal::displayInfo(MString(str.c_str()));
-				myfile.close();
 				MGlobal::displayInfo(MString("Open with predefined tile: "));
 				int enumValue = tileListHandle.asInt();
-				/*myfile.open(allTile[enumValue].c_str());
-				if (myfile.is_open()) {
-					std::string mystring;
-					//read each row in each while loop
-					while (myfile.good()) {
-						myfile >> mystring;
-						std::vector<std::vector<bool>> tile = initialize_vector();
-						//iterate through each row to get the quads face
-						int row_num = 0;
-						int col_num = 0;
-						for (int i = 0; i < mystring.length(); i++) {
-							if (mystring[i] == '/') {
-								row_num++;
-								col_num = 0;
-								continue;
-							}
-							if (mystring[i] == 'F') {
-								tile[row_num][col_num] = true;
-								col_num++;
-							}
-						}
-						all_tiles.push_back(tile);
-						MGlobal::displayInfo(mystring.c_str());
-					}
-					//we update weight and max occurency for each tile
-					std::string str = "weight: " + std::to_string(weightHandle.asFloat());
-					MGlobal::displayInfo(MString(str.c_str()));
-					str = "max occurency: " + std::to_string(maxOccurHandle.asInt());
-					MGlobal::displayInfo(MString(str.c_str()));
-					weights.push_back(weightHandle.asFloat());
-					maxOccurs.push_back(maxOccurHandle.asInt());
-				}
-				else {
-					std::string str = "open file failed at: " + i;
-					MGlobal::displayInfo(MString(str.c_str()));
-				}*/
 				if (tiles_storage.size() > 0) {
 					all_tiles.push_back(tiles_storage.at(enumValue));
 					std::string str = "weight: " + std::to_string(weightHandle.asFloat());
@@ -287,9 +250,7 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 					weights.push_back(weightHandle.asFloat());
 					maxOccurs.push_back(maxOccurHandle.asInt());
 				}
-				
 			}
-			//myfile.close();
 			// Move to the next element in the array
 			arrayHandle.next();
 		}
@@ -398,11 +359,6 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			}
 		}
 
-		//test
-		int enumValue = data.inputValue(dropList,&returnStatus).asInt();
-		std::string val = "value is: "+std::to_string(enumValue);
-		MGlobal::displayInfo(val.c_str());
-
 		//mesh manipulation
 		MFnMeshData dataCreator;
 		MObject newOutputData = dataCreator.create(&returnStatus);
@@ -410,14 +366,6 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 		MFnMesh meshFS;
 		
 		meshFS.create(mPos.length(), faceCounts.length(), mPos, faceCounts, faceConnects, newOutputData, &returnStatus);
-		/*MColor col(1, 0, 0);
-		if (faceCounts.length() > 0) { 
-			meshFS.setFaceColor(col, 0);
-			meshFS.setFaceColor(col, 1);
-			meshFS.setFaceColor(col, 2);
-			meshFS.setFaceColor(col, 3);
-		}*/
-		//newOutputData = meshFS.generateSmoothMesh(newOutputData,nullptr,&returnStatus);
 		McheckErr(returnStatus, "ERROR: creating new geometry");
 
 		//output handle
@@ -459,12 +407,7 @@ MStatus MayaNode::initialize() {
 	typedAttr.addChild(dropList);
 
 	typedAttr.setArray(true);
-	typedAttr.setUsesArrayDataBuilder(true);
-
-	//test
-	//typedAttr.addChild(dropList);
-
-	
+	typedAttr.setUsesArrayDataBuilder(true);	
 
 	//set input file location
 	MFnTypedAttribute stringAttr;
@@ -516,8 +459,6 @@ MStatus MayaNode::initialize() {
 	}
 
 	//attributes affect
-	//returnStatus = attributeAffects(MayaNode::inputFile, MayaNode::outputGeometry);
-	//McheckErr(returnStatus, "Error adding input file attributeAffect");
 	returnStatus = attributeAffects(MayaNode::tileSideLen, MayaNode::outputGeometry);
 	McheckErr(returnStatus, "Error adding tileSideLen attributeAffect");
 	returnStatus = attributeAffects(MayaNode::myListAttr, MayaNode::outputGeometry);
