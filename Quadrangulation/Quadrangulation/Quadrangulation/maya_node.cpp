@@ -195,14 +195,14 @@ MStatus MayaNode::compute(const MPlug& plug, MDataBlock& data) {
 			MDataHandle elementHandle = arrayHandle.inputValue(&returnStatus);
 
 			// Get the child handles for the string and number attributes
-			//MDataHandle pathHandle = elementHandle.child(inputFile);
+			MDataHandle pathHandle = elementHandle.child(inputFile);
 			MDataHandle weightHandle = elementHandle.child(weight);
 			MDataHandle maxOccurHandle = elementHandle.child(maxOccurency);
 			MDataHandle tileListHandle = elementHandle.child(dropList);
 		
 			//allow the program to read files
-			//MString filelocation = pathHandle.asString();
-			std::ifstream myfile("filelocation.asChar()");
+			MString filelocation = pathHandle.asString();
+			std::ifstream myfile(filelocation.asChar());
 			if (myfile.is_open()) {
 				std::string mystring;
 				MGlobal::displayInfo(MString("Open with file path: "));
@@ -451,24 +451,26 @@ MStatus MayaNode::initialize() {
 	MayaNode::dropList = dropdown.create("preDefinedTile", "drop");
 	for (int i = 0;i < allTile.size();i++) {
 		std::string key = generateKey(allTile[i]);
-		dropdown.addField(MString(key.c_str()), i);
+		dropdown.addField(MString(allTile.at(i).c_str()), i);
 		std::string info = "initialize list: key: " + key + ", " + std::to_string(i);
 		MGlobal::displayInfo(info.c_str());
 	}
 	addAttribute(dropList);
 	typedAttr.addChild(dropList);
 
-	//test
-	//typedAttr.addChild(dropList);
-
 	typedAttr.setArray(true);
 	typedAttr.setUsesArrayDataBuilder(true);
 
+	//test
+	//typedAttr.addChild(dropList);
+
+	
+
 	//set input file location
-	/*MFnTypedAttribute stringAttr;
+	MFnTypedAttribute stringAttr;
 	MayaNode::inputFile = stringAttr.create("InputFile", "inputfile", MFnData::kString, MObject::kNullObj, &returnStatus);
 	McheckErr(returnStatus, "Error creating input file attribte\n");
-	typedAttr.addChild(inputFile);*/
+	typedAttr.addChild(inputFile);
 
 	MFnNumericAttribute numericAttr;
 	//set occurrencies
@@ -478,6 +480,8 @@ MStatus MayaNode::initialize() {
 	MayaNode::weight = numericAttr.create("Weight", "w_1", MFnNumericData::kFloat, 0.f, &returnStatus);
 	McheckErr(returnStatus, "Error creating node weight_1 attribute\n");
 	typedAttr.addChild(weight);
+
+
 
 	MayaNode::tileSideLen = weightAttr.create("tile_length", "tile_len", MFnNumericData::kFloat, 0.2f, &returnStatus);
 	McheckErr(returnStatus, "Error creating node tile_length attribute\n");
