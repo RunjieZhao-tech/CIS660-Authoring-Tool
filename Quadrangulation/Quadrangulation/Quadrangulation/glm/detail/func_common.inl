@@ -8,6 +8,7 @@
 #include "type_vec3.hpp"
 #include "type_vec4.hpp"
 #include "_vectorize.hpp"
+#include <cmath>
 #include <limits>
 
 namespace glm
@@ -582,7 +583,7 @@ namespace detail
 	}
 
 #	if GLM_HAS_CXX11_STL
-		using std::isnan;
+		using glm::isnan;
 #	else
 		template<typename genType>
 		GLM_FUNC_QUALIFIER bool isnan(genType x)

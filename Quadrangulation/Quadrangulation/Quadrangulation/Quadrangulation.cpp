@@ -1,15 +1,87 @@
 //Quadrangulation Reducing Points
-
+#include <maya/MPxCommand.h>
+#include <maya/MFnPlugin.h>
+#include <maya/MIOStream.h>
+#include <maya/MString.h>
+#include <maya/MArgList.h>
+#include <maya/MGlobal.h>
+#include <maya/MSimple.h>
+#include <maya/MDoubleArray.h>
+#include <maya/MPoint.h>
+#include <maya/MPointArray.h>
+#include <maya/MFnNurbsCurve.h>
+#include <maya/MDGModifier.h>
+#include <maya/MPlugArray.h>
+#include <maya/MVector.h>
+#include <maya/MFnDependencyNode.h>
+#include <maya/MStringArray.h>
+#include <list>
 #include <iostream>
-#include <half_edge.h>
-#include <glm/glm.hpp>
+//#include "half_edge.h"
+//#include "glm/glm.hpp"
+#include "maya_ui.h"
+#include "maya_node.h"
+//#include "tile_solver.h"
 void reducePoints(int input[],int times);
 void Test();
 
-int main()
+
+//Plugin Initialization
+MStatus initializePlugin(MObject obj)
 {
-    Test();
+    MStatus   status = MStatus::kSuccess;
+    MFnPlugin plugin(obj, "MyPlugin", "1.0", "Any");
+
+    char buffer[2048];
+
+    MString pluginPath = plugin.loadPath();
+
+    MString menuPath = MString("source \"") + pluginPath + MString("/ui.mel\"");
+    sprintf_s(buffer, 2048, menuPath.asChar(), pluginPath);
+
+    MGlobal::executeCommand(buffer, true);
+
+    // Register Command
+    status = plugin.registerCommand("maya_ui_cmd", maya_ui::creator);
+    if (!status) {
+        status.perror("registerCommand");
+        return status;
+    }
+    //Register Node
+    status = plugin.registerNode("MayaNode", MayaNode::id, MayaNode::creator, MayaNode::initialize);
+    if (!status) {
+        status.perror("registerNode");
+        return status;
+    }
+
+    return status;
 }
+
+//Unintialize plugin
+MStatus uninitializePlugin(MObject obj)
+{
+    MStatus   status = MStatus::kSuccess;
+    MFnPlugin plugin(obj);
+
+    status = plugin.deregisterCommand("maya_ui_cmd");
+    if (!status) {
+        status.perror("deregisterCommand");
+        return status;
+    }
+
+    status = plugin.deregisterNode(MayaNode::id);
+    if (!status) {
+        status.perror("deregisterNode");
+        return status;
+    }
+
+    return status;
+}
+
+//helper function
+/*void printout(glm::vec3 val) {
+    std::cout << val.x << " " << val.y << " " << val.z << std::endl;
+}*/
 
 //Each index in the input represents the number of edges in one side
 //Now we suppose it is a triangle which means that there are at most 3 values in the array
@@ -40,37 +112,4 @@ void reducePoints(int input[], int times) {
     return;
 }
 
-//create a triangle and decompose it into several pieces.
-void Test(){
-    //create three vertices
-    Vertex* v1 = new Vertex();
-    v1->pos = glm::vec3(0, 0, 0);
-    Vertex* v2 = new Vertex();
-    v2->pos = glm::vec3(1, 0, 0);
-    Vertex* v3 = new Vertex();
-    v3->pos = glm::vec3(0, 1, 0);
-    std::cout << v1->pos.x << " " << v1->pos.y << " " << v1->pos.z << std::endl;
 
-    std::vector<Vertex*> vertex_arr;
-    vertex_arr.push_back(v1);
-    vertex_arr.push_back(v2);
-    vertex_arr.push_back(v3);
-
-    //create edges
-    std::vector<HalfEdge*> edge_arr;
-    HalfEdge* he1 = new HalfEdge();
-    he1->setVert(v1);
-    HalfEdge* he2 = new HalfEdge();
-    he2->setVert(v2);
-    HalfEdge* he3 = new HalfEdge();
-    he3->setVert(v3);
-
-    he1->setNextEdge(he2);
-    he2->setNextEdge(he3);
-    he3->setNextEdge(he1);
-
-    Face* face = new Face();
-    face->setEdge(he1);
-
-
-}

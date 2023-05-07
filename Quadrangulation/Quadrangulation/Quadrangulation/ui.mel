@@ -1,0 +1,56 @@
+global string $gMainWindow;
+global float $degree;
+global string $files[];
+global string $path;
+global proc string browseFiles( ) {
+	string $basicFilter = "*.txt";
+	$files = `fileDialog2 -fileFilter $basicFilter -dialogStyle 2`;
+	return $files[0];
+}
+
+
+global proc window_generate( ){
+	window -title "Dialog";
+	string $cols = `columnLayout`; 
+	button -label "Browse" -w 50 -command "$path = browseFiles()"; 
+	string $iter = `intSliderGrp -label "Iterations" -field true -fieldMinValue -50 -fieldMaxValue 50 -minValue -10 -maxValue 10 -value 0 iter`;
+	string $steps = `floatSliderGrp -label "Default Step Size" -field true -fieldMinValue -50 -fieldMaxValue 50 -minValue -10 -maxValue 10 -value 0 steps`;
+	string $degree = `floatSliderGrp -label "Default Angle" -field true -fieldMinValue -180 -fieldMaxValue 180 -minValue -180 -maxValue 180 -value 0 degree`;
+	button -label "OK" -w 50 -command "LSystemCmd -it `intSliderGrp -q -value iter` -degree `floatSliderGrp -q -value degree` -step `floatSliderGrp -q -value steps` -grammar $path";
+	showWindow;
+}
+
+global proc test_generate(){
+	polyPlane -n plg -w 1 -h 1 -sx 1 -sy 1 -ax 0 1 0 -cuv 2 -ch 1;
+	int $arr[] = `polyEvaluate -v plg`;
+	int $count;
+	for ($count = 0; $count < $arr[0]; $count++)
+	{
+		print(`pointPosition plg.vtx[$count]`);
+	}
+	print $arr;
+	polyCreateFacet -n poly1 -ch on -tx 1 -s 1 -p -10.748076 0 5.282411 -p 0.922682 0 9.718223 -p 4.525064 0 5.142732 -p -0.9474 0 -1.143308;
+}
+
+global proc createTest(){
+    string $s[] = `ls -sl`;
+    int $nums = size($s);
+    if($nums!=1)return;
+    print("you are in createTest\n");
+    string $plane = $s[0];
+    string $node = `createNode MayaNode`;
+	string $trans = `createNode transform`;
+	string $shape = `createNode mesh -p $trans`;
+    connectAttr ($plane + ".outMesh") ($node + ".input_geometry");
+	connectAttr ($node + ".output_geometry") ($shape + ".inMesh");
+}
+
+
+global string $gMainWindow;
+menu -p $gMainWindow -label "Layout pre-Master";
+menuItem -label "create Node test" -command "createTest";
+
+//menu -label "LSystem" -parent $gMainWindow -helpMenu true;
+	//menuItem -label "Create LSystem" -command "window_generate();";
+	//menuItem -label "Create Dynamic LSystem" -command "createNode transform -n LSystem1;createNode mesh -n LSystemShape1 -p LSystem1;sets -add initialShadingGroup LSystemShape1; createNode LSystemNode -n LSystemNode1;connectAttr LSystemNode1.output_geometry LSystemShape1.inMesh;";
+	//menuItem -label "Test Selection" -command "test_generate()";
